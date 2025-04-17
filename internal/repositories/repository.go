@@ -4,20 +4,35 @@ import (
 	"CourseService/internal/interfaces/rest/dto"
 	"CourseService/internal/repositories/models"
 
+	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
 )
 
 type (
 	CourseRepository interface{
 		GetAllCourses(filter *dto.CourseFilter) ([]models.Course, error)
+		GetCourse(id uuid.UUID) (*models.Course, error)
 	}
+
+	ModuleRepository interface{
+		GetModulesByCourse(courseID uuid.UUID) ([]models.Module, error)
+	}
+
+	TaskRepository interface {
+		GetTasks(moduleId uuid.UUID) ([]models.Task, error)
+	}
+
 	Repository struct {
 		CourseRepository CourseRepository
+		ModuleRepository ModuleRepository
+		TaskRepository   TaskRepository
 	}
 )
 
 func NewRepository(conn *sqlx.DB) *Repository {
 	return &Repository{
 		CourseRepository: NewCourseRepositoryImpl(conn),
+		ModuleRepository: NewModuleRepositoryImpl(conn),
+		TaskRepository: NewTaskRepository(conn),
 	}
 }	

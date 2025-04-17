@@ -6,6 +6,7 @@ import (
 	"log/slog"
 	"strings"
 
+	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
 )
 
@@ -54,4 +55,16 @@ func (cr *PgCourseRepository) GetAllCourses(filter *dto.CourseFilter) ([]models.
 	}
 
 	return courses, nil
+}
+
+func (cr *PgCourseRepository) GetCourse(id uuid.UUID) (*models.Course, error) {
+	query := `SELECT * FROM t_course WHERE id = $1`
+	course := &models.Course{}
+	err := cr.conn.Get(course, query, id)
+	if err != nil {
+		slog.Error("Error executing select", "query", query, "error", err)
+		return nil, err
+	}
+
+	return course, nil
 }

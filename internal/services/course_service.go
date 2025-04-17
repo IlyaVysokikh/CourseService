@@ -6,6 +6,8 @@ import (
 	"context"
 	"log/slog"
 	"time"
+
+	"github.com/google/uuid"
 )
 
 type CourseServiceImpl struct {
@@ -51,4 +53,37 @@ func (c *CourseServiceImpl) GetAllCourses(ctx context.Context, filter *dto.Cours
 	}
 	
 	return result, nil
+}
+
+func (c *CourseServiceImpl) GetCourse(ctx context.Context, id uuid.UUID) (*dto.Course, error) {
+	course, err := c.repo.GetCourse(id)
+	if err != nil {
+		slog.Error("Error getting course", "error", err)
+		return nil, err
+	}
+
+	parsedDateStart, err := time.Parse(c.dateFormat, course.DateStart)
+	if err != nil {
+		slog.Error("Error parsing course start date", "error", err)
+		return nil, err
+	}
+
+	parsedDateEnd, err := time.Parse(c.dateFormat, course.DateEnd)
+	if err != nil {
+		slog.Error("Error parsing course end date", "error", err)
+		return nil, err
+	}
+
+	courseDto := dto.Course{
+		Id:          course.ID,
+		Name:        course.Name,
+		AuthorID:    course.AuthorID,
+		Description: course.Description,
+		DateStart:   parsedDateStart.Format(c.dateFormat),
+		DateEnd:     parsedDateEnd.Format(c.dateFormat),
+		ImagePath:   course.ImagePath,
+		IsArchived:  false,
+	}
+
+	return &courseDto, nil
 }

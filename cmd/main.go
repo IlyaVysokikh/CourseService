@@ -82,4 +82,5 @@ func configureLogger(level string) *slog.Logger {
 func configureRoutes(router *gin.Engine, h *rest.Handler) {
 	router.GET("/health", h.HealthCheck)
 	router.GET("/courses", h.GetAllCourses)
+	router.GET("/courses/:id", h.GetCourse)
 }

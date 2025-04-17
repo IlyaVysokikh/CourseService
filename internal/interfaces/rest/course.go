@@ -3,7 +3,9 @@ package rest
 import (
 	"CourseService/internal/interfaces/rest/dto"
 	"log/slog"
+
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 )
 
 func (h *Handler) GetAllCourses(ctx *gin.Context) {
@@ -23,4 +25,28 @@ func (h *Handler) GetAllCourses(ctx *gin.Context) {
 	}
 
 	h.ok(ctx, courses)
+}
+
+func (h *Handler) GetCourse(ctx *gin.Context) {
+	id := ctx.Param("id")
+	if id == "" {
+		slog.Error("Error getting course id from params")
+		// h.badRequest(ctx, "id is empty")
+		return
+	}
+
+	uuidId, err := uuid.Parse(id)
+	if err != nil {
+		slog.Error("Error converting id to uuid", "error", err)
+		h.badRequest(ctx, err)
+	}
+
+	course, err := h.usecases.GetCourseUsecase.Handle(ctx, uuidId)
+	if err != nil {
+		slog.Error("Error getting course", "error", err)
+		h.badRequest(ctx, err)
+		return
+	}
+
+	h.ok(ctx, course)
 }

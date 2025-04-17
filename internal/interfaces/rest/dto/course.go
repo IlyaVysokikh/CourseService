@@ -16,3 +16,15 @@ type CourseList struct {
 	IsArchived bool `json:"is_archived"`
 	ImagePath string `json:"image_path"`
 }
+
+type Course struct {
+	Id uuid.UUID `json:"id"`
+	Name string `json:"name"`
+	Description string `json:"description"`
+	DateStart string `json:"date_start"`
+	DateEnd string `json:"date_end"`
+	ImagePath string `json:"image_path"`
+	AuthorID uuid.UUID `json:"author_id"`
+	IsArchived bool `json:"is_archived"`
+	Modules []ModuleList `json:"modules"`
+}
