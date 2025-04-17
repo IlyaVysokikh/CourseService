@@ -87,3 +87,23 @@ func (c *CourseServiceImpl) GetCourse(ctx context.Context, id uuid.UUID) (*dto.C
 
 	return &courseDto, nil
 }
+
+func (c *CourseServiceImpl) CreateCourse(ctx context.Context, course *dto.CreateCourse) (uuid.UUID, error) {
+	createdCourseId, err := c.repo.Create(course)
+	if err != nil {
+		slog.Error("Error creating course", "error", err)
+		return uuid.Nil, err
+	}
+
+	return *createdCourseId, nil
+}
+
+func (c *CourseServiceImpl) CloneCourse(ctx context.Context, course *dto.CloneCourseRequest) (uuid.UUID, error) {
+	createdCourseId, err := c.repo.Clone(course)
+	if err != nil {
+		slog.Error("Error cloning course", "error", err)
+		return uuid.Nil, err
+	}
+
+	return *createdCourseId, nil
+}

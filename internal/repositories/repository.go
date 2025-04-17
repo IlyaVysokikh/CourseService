@@ -12,6 +12,8 @@ type (
 	CourseRepository interface{
 		GetAllCourses(filter *dto.CourseFilter) ([]models.Course, error)
 		GetCourse(id uuid.UUID) (*models.Course, error)
+		Create(course *dto.CreateCourse) (*uuid.UUID, error)
+		Clone(course *dto.CloneCourseRequest) (*uuid.UUID, error)
 	}
 
 	ModuleRepository interface{

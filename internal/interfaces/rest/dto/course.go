@@ -26,5 +26,30 @@ type Course struct {
 	ImagePath string `json:"image_path"`
 	AuthorID uuid.UUID `json:"author_id"`
 	IsArchived bool `json:"is_archived"`
+	ParentCourseID *uuid.UUID `json:"parent_course_id"`
 	Modules []ModuleList `json:"modules"`
+}
+
+type CreateCourse struct {
+	Name string `json:"name" validate:"required"`
+	Description string `json:"description"`
+	DateStart string `json:"date_start" validate:"required"`
+	DateEnd string `json:"date_end" validate:"required"`
+	ImagePath string `json:"image_path"`
+	AuthorID uuid.UUID `json:"author_id" validate:"required"`
+}
+
+
+type CreateCourseResponse struct {
+	Id uuid.UUID `json:"id"`
+}
+
+type CloneCourseRequest struct {
+	ParentCourseID uuid.UUID `json:"parent_course_id" validate:"required"`
+	AuthorID uuid.UUID `json:"author_id" validate:"required"`
+	Name string `json:"name" validate:"required"`
+	Description string `json:"description"`
+	DateStart string `json:"date_start" validate:"required"`
+	DateEnd string `json:"date_end" validate:"required"`
+	ImagePath string `json:"image_path"`
 }

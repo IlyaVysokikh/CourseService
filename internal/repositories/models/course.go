@@ -10,4 +10,5 @@ type Course struct {
 	DateEnd    string `db:"c_date_end"`
 	ImagePath   string `db:"c_image_path"`
 	AuthorID    uuid.UUID    `db:"id_author"`
+	ParentCourseID *uuid.UUID `db:"id_parent_course"`
 }

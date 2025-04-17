@@ -12,6 +12,8 @@ type (
 	CourseService interface{
 		GetAllCourses(ctx context.Context, filter *dto.CourseFilter) ([]dto.CourseList, error)
 		GetCourse(ctx context.Context, id uuid.UUID) (*dto.Course, error)
+		CreateCourse(ctx context.Context, course *dto.CreateCourse) (uuid.UUID, error)
+		CloneCourse(ctx context.Context, course *dto.CloneCourseRequest) (uuid.UUID, error)
 	}
 
 	ModuleService interface{
