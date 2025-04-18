@@ -4,6 +4,8 @@ import (
 	"CourseService/internal/interfaces/rest/dto"
 	"CourseService/internal/repositories"
 	"context"
+	"log/slog"
+
 	"github.com/google/uuid"
 )
 
@@ -34,4 +36,30 @@ func (ms ModuleServiceImpl) GetModulesByCourse(ctx context.Context, courseID uui
 	}
 
 	return moduleList, nil
+}
+
+func (ms ModuleServiceImpl) CreateModules(ctx context.Context, courseID uuid.UUID, modules dto.CreateModulesRequest) error {
+	var newModules []dto.CreateModule
+	var incomingModules []dto.CreateModule
+	
+	for i := 0; i < len(modules.Modules); i++ {
+		if modules.Modules[i].Id == nil || *modules.Modules[i].Id == uuid.Nil {
+			incomingModules = append(incomingModules, modules.Modules[i]) 
+		} else {
+			newModules = append(newModules, modules.Modules[i]) 
+		}
+	}
+
+	err := ms.repo.UpdateModules(courseID, newModules)
+	if err != nil {
+		slog.Error("Error updating modules", "error", err)
+		return err
+	}
+
+	err = ms.repo.CreateModules(courseID, incomingModules)
+	if err != nil {
+		slog.Error("Error creating modules", "error", err)
+	}
+
+	return nil
 }

@@ -85,4 +85,5 @@ func configureRoutes(router *gin.Engine, h *rest.Handler) {
 	router.GET("/courses/:id", h.GetCourseHandler)
 	router.POST("/courses", h.CreateCourseHandler)
 	router.POST("/courses/:id/clone", h.CloneCourseHandler)
+	router.POST("/courses/:id/modules", h.CreateModulesHandler)
 }

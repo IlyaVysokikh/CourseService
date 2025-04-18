@@ -18,6 +18,8 @@ type (
 
 	ModuleRepository interface{
 		GetModulesByCourse(courseID uuid.UUID) ([]models.Module, error)
+		CreateModules(courseID uuid.UUID, modules []dto.CreateModule) error
+		UpdateModules(courseID uuid.UUID, modules []dto.CreateModule) error
 	}
 
 	TaskRepository interface {

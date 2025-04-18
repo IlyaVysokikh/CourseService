@@ -18,6 +18,7 @@ type (
 
 	ModuleService interface{
 		GetModulesByCourse(ctx context.Context, courseID uuid.UUID) ([]dto.ModuleList, error)
+		CreateModules(ctx context.Context, courseID uuid.UUID, modules dto.CreateModulesRequest) error 
 	}
 
 	TaskService interface {
