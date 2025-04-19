@@ -2,7 +2,9 @@ package rest
 
 import (
 	"CourseService/internal/interfaces/rest/dto"
-
+	ierrors "CourseService/pkg/errors"
+	
+	"errors"
 	"github.com/gin-gonic/gin"
 	"log/slog"
 	"github.com/google/uuid"
@@ -47,8 +49,13 @@ func (h *Handler) GetModuleHandler(ctx *gin.Context) {
 
 	module, err := h.usecases.GetModuleUsecase.Handle(ctx, moduleUuid)
 	if err != nil {
-		slog.Error("Error getting module", "error", err)
-		ctx.JSON(500, gin.H{"error": "Internal server error"})
+		if errors.Is(err, ierrors.ErrNotFound) {
+			slog.Warn("Module not found", "moduleID", moduleUuid)
+			h.notFound(ctx, err)
+		} else {
+			slog.Error("Error getting module", "moduleID", moduleUuid, "error", err)
+			ctx.JSON(500, gin.H{"error": "Internal server error"})
+		}
 		return
 	}
 	

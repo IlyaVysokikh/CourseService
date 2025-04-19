@@ -5,6 +5,8 @@ import (
 	"CourseService/internal/repositories"
 	"context"
 	"log/slog"
+	"errors"
+	ierrors "CourseService/pkg/errors"
 
 	"github.com/google/uuid"
 )
@@ -22,7 +24,13 @@ func NewModuleService(repository repositories.ModuleRepository) ModuleService {
 func (ms ModuleServiceImpl) GetModulesByCourse(ctx context.Context, courseID uuid.UUID) ([]dto.ModuleList, error) {
 	modules, err := ms.repo.GetModulesByCourse(courseID)
 	if err != nil {
-		return nil, err
+		slog.Error("error getting modules by course", slog.Any("err", err))
+		
+		if errors.Is(err, ierrors.ErrNotFound) {
+			return nil, ierrors.New(ierrors.ErrNotFound, "modules not found", err)
+		}
+
+		return nil, ierrors.New(ierrors.ErrInternal, "failed to get modules", err)
 	}
 
 	var moduleList []dto.ModuleList
@@ -50,16 +58,16 @@ func (ms ModuleServiceImpl) CreateModules(ctx context.Context, courseID uuid.UUI
 		}
 	}
 
-	err := ms.repo.UpdateModules(courseID, newModules)
-	if err != nil {
-		slog.Error("Error updating modules", "error", err)
-		return err
+	if err := ms.repo.UpdateModules(courseID, newModules); err != nil {
+		slog.Error("error updating modules", slog.Any("err", err))
+		return ierrors.New(ierrors.ErrInternal, "failed to update modules", err)
 	}
 
-	err = ms.repo.CreateModules(courseID, incomingModules)
-	if err != nil {
-		slog.Error("Error creating modules", "error", err)
+	if err := ms.repo.CreateModules(courseID, incomingModules); err != nil {
+		slog.Error("error creating modules", slog.Any("err", err))
+		return ierrors.New(ierrors.ErrInternal, "failed to create modules", err)
 	}
+
 
 	return nil
 }
@@ -67,8 +75,13 @@ func (ms ModuleServiceImpl) CreateModules(ctx context.Context, courseID uuid.UUI
 func (ms ModuleServiceImpl) GetModule(ctx context.Context, moduleID uuid.UUID) (dto.GetModule, error) {
 	module, err := ms.repo.GetModule(moduleID)
 	if err != nil {
-		slog.Error("Error getting module", "error", err)
-		return dto.GetModule{}, err
+		slog.Error("error getting module", slog.Any("err", err))
+
+		if errors.Is(err, ierrors.ErrNotFound) {
+			return dto.GetModule{}, ierrors.New(ierrors.ErrNotFound, "module not found", err)
+		}
+
+		return dto.GetModule{}, ierrors.New(ierrors.ErrInternal, "failed to get module", err)
 	}
 
 	return dto.GetModule{

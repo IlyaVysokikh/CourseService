@@ -4,6 +4,7 @@ import (
 	"log"
 	"log/slog"
 	"os"
+	"io"
 
 	"github.com/gin-gonic/gin"
 
@@ -47,30 +48,45 @@ func main() {
 	logger.Info("Application started successfully", "port", cfg.APP_PORT)
 }
 
-func configureLogger(level string) *slog.Logger {
-	var handler slog.Handler
+func configureLogger(cfg cfg.LoggerConfig) *slog.Logger {
+	var writers []io.Writer
 
-	switch level {
+	writers = append(writers, os.Stdout)
+
+	if cfg.FileOutput != "" {
+		file, err := os.OpenFile(cfg.FileOutput, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+		if err != nil {
+			panic("failed to open log file: " + err.Error())
+		}
+		writers = append(writers, file)
+	}
+
+	multiWriter := io.MultiWriter(writers...)
+
+	opts := &slog.HandlerOptions{
+		AddSource: true,
+	}
+
+	switch cfg.Level {
 	case "debug":
-		handler = slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{
-			Level: slog.LevelDebug,
-		})
+		opts.Level = slog.LevelDebug
 	case "info":
-		handler = slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{
-			Level: slog.LevelInfo,
-		})
+		opts.Level = slog.LevelInfo
+		opts.AddSource = false
 	case "warn":
-		handler = slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{
-			Level: slog.LevelWarn,
-		})
+		opts.Level = slog.LevelWarn
 	case "error":
-		handler = slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{
-			Level: slog.LevelError,
-		})
+		opts.Level = slog.LevelError
 	default:
-		handler =slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{
-			Level: slog.LevelInfo,
-		})
+		opts.Level = slog.LevelInfo
+	}
+
+	var handler slog.Handler
+	switch cfg.Format {
+	case "json":
+		handler = slog.NewJSONHandler(multiWriter, opts)
+	default:
+		handler = slog.NewTextHandler(multiWriter, opts)
 	}
 
 	logger := slog.New(handler)
@@ -78,6 +94,7 @@ func configureLogger(level string) *slog.Logger {
 
 	return logger
 }
+
 
 func configureRoutes(router *gin.Engine, h *rest.Handler) {
 	router.GET("/health", h.HealthCheck)

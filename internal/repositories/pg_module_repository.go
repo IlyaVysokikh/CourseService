@@ -3,8 +3,12 @@ package repositories
 import (
 	"CourseService/internal/interfaces/rest/dto"
 	"CourseService/internal/repositories/models"
-	"log/slog"
+	ierrors "CourseService/pkg/errors"
 
+	"log/slog"
+	"errors"
+	"database/sql"
+	
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
 )
@@ -25,7 +29,7 @@ func (p *PgModuleRepository) GetModulesByCourse(courseID uuid.UUID) ([]models.Mo
 	err := p.conn.Select(&modules, query, courseID)
 	if err != nil {
 		slog.Error("Error executing select", "query", query, "error", err)
-		return nil, err
+		return nil, ierrors.ErrInternal
 	}
 
 	return modules, nil
@@ -50,7 +54,7 @@ func (p *PgModuleRepository) CreateModules(courseID uuid.UUID, modules []dto.Cre
 
 	if err != nil {
 		slog.Error("Error executing insert", "query", query, "error", err)
-		return err
+		return ierrors.ErrInternal
 	}
 
 	return nil
@@ -71,7 +75,7 @@ func (p *PgModuleRepository) UpdateModules(courseID uuid.UUID, modules []dto.Cre
 
 		if err != nil {
 			slog.Error("Error updating module", "id", m.Id, "error", err)
-			return err
+			return ierrors.ErrInternal
 		}
 	}
 	return nil
@@ -82,8 +86,13 @@ func (p *PgModuleRepository) GetModule(moduleID uuid.UUID) (*models.Module, erro
 	module := models.Module{}
 	err := p.conn.Get(&module, query, moduleID)
 	if err != nil {
-		slog.Error("Error executing select", "query", query, "error", err)
-		return nil, err
+		if errors.Is(err, sql.ErrNoRows) {
+			slog.Warn("module not found", "id", moduleID)
+			return nil, ierrors.ErrNotFound
+		}
+
+		slog.Error("error executing select", "query", query, "error", err)
+		return nil, ierrors.ErrInternal
 	}
 
 	return &module, nil

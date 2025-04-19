@@ -3,6 +3,7 @@ package rest
 import (
 	"CourseService/internal/interfaces/rest/dto"
 	"log/slog"
+	ierrors "CourseService/pkg/errors"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -18,6 +19,12 @@ func (h *Handler) GetAllCoursesHandler(ctx *gin.Context) {
 
 	courses, err := h.usecases.GetAllCourseUsecase.Handle(ctx, courseFilter)
 	if err != nil {
+		if err == ierrors.ErrInternal {
+			slog.Error("Error getting all courses", "error", err)
+			h.internalServerError(ctx, err)
+			return
+		}
+
 		slog.Error("Error getting all courses", "error", err)
 		h.badRequest(ctx, err)
 		return
@@ -30,7 +37,7 @@ func (h *Handler) GetCourseHandler(ctx *gin.Context) {
 	id := ctx.Param("id")
 	if id == "" {
 		slog.Error("Error getting course id from params")
-		// h.badRequest(ctx, "id is empty")
+		h.badRequest(ctx, ierrors.ErrInvalidInput)
 		return
 	}
 
@@ -42,6 +49,24 @@ func (h *Handler) GetCourseHandler(ctx *gin.Context) {
 
 	course, err := h.usecases.GetCourseUsecase.Handle(ctx, uuidId)
 	if err != nil {
+		if err == ierrors.ErrNotFound {
+			slog.Warn("Course not found", "courseID", id)
+			h.notFound(ctx, err)
+			return
+		}
+
+		if err == ierrors.ErrInternal {
+			slog.Error("Error getting course", "error", err)
+			h.internalServerError(ctx, err)
+			return
+		}
+
+		if err == ierrors.ErrInvalidInput {
+			slog.Warn("Invalid input", "courseID", id)
+			h.badRequest(ctx, err)
+			return
+		}
+
 		slog.Error("Error getting course", "error", err)
 		h.badRequest(ctx, err)
 		return
@@ -70,7 +95,6 @@ func (h *Handler) CreateCourseHandler(ctx *gin.Context) {
 }
 
 func (h *Handler) CloneCourseHandler(ctx *gin.Context) {
-	// Получаем original_course_id из path-параметра
 	parentIDStr := ctx.Param("id")
 	parentID, err := uuid.Parse(parentIDStr)
 	if err != nil {
@@ -79,7 +103,6 @@ func (h *Handler) CloneCourseHandler(ctx *gin.Context) {
 		return
 	}
 
-	// Получаем остальные поля из тела
 	var req dto.CloneCourseRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		slog.Error("Error binding json", "error", err)
@@ -87,10 +110,8 @@ func (h *Handler) CloneCourseHandler(ctx *gin.Context) {
 		return
 	}
 
-	// Подставляем родительский ID из route
 	req.ParentCourseID = parentID
 
-	// Вызываем логику репозитория
 	clonedID, err := h.usecases.CloneCourseUsecase.Handle(ctx, &req)
 	if err != nil {
 		slog.Error("Error cloning course", "error", err)

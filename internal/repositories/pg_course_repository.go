@@ -3,6 +3,9 @@ package repositories
 import (
 	"CourseService/internal/interfaces/rest/dto"
 	"CourseService/internal/repositories/models"
+	ierrors "CourseService/pkg/errors"
+	"database/sql"
+
 	"log/slog"
 	"strings"
 
@@ -43,7 +46,7 @@ func (cr *PgCourseRepository) GetAllCourses(filter *dto.CourseFilter) ([]models.
 	namedStmt, err := cr.conn.PrepareNamed(baseQuery)
 	if err != nil {
 		slog.Error("Error preparing named statement", "query", baseQuery, "error", err)
-		return nil, err
+		return nil, ierrors.ErrInternal
 	}
 	defer namedStmt.Close()
 
@@ -51,7 +54,7 @@ func (cr *PgCourseRepository) GetAllCourses(filter *dto.CourseFilter) ([]models.
 	err = namedStmt.Select(&courses, args)
 	if err != nil {
 		slog.Error("Error executing select", "query", baseQuery, "error", err)
-		return nil, err
+		return nil, ierrors.ErrInternal
 	}
 
 	return courses, nil
@@ -62,8 +65,11 @@ func (cr *PgCourseRepository) GetCourse(id uuid.UUID) (*models.Course, error) {
 	course := &models.Course{}
 	err := cr.conn.Get(course, query, id)
 	if err != nil {
-		slog.Error("Error executing select", "query", query, "error", err)
-		return nil, err
+		if err == sql.ErrNoRows {
+			slog.Warn("Course not found", "query", query, "error", err)
+			return nil, ierrors.ErrNotFound
+		}
+		return nil, ierrors.ErrInternal
 	}
 
 	return course, nil
@@ -82,7 +88,7 @@ func (cr *PgCourseRepository) Create(course *dto.CreateCourse) (*uuid.UUID, erro
 	namedStmt, err := cr.conn.PrepareNamed(query)
 	if err != nil {
 		slog.Error("Error preparing named statement", "query", query, "error", err)
-		return nil, err
+		return nil, ierrors.ErrInternal
 	}
 	defer namedStmt.Close()
 
@@ -98,7 +104,7 @@ func (cr *PgCourseRepository) Create(course *dto.CreateCourse) (*uuid.UUID, erro
 
 	if err != nil {
 		slog.Error("Error executing insert", "query", query, "error", err)
-		return nil, err
+		return nil, ierrors.ErrInternal
 	}
 
 	return &insertedID, nil
@@ -123,7 +129,7 @@ func (cr *PgCourseRepository) Clone(course *dto.CloneCourseRequest) (*uuid.UUID,
 
 	if err != nil {
 		slog.Error("Error executing clone course", "query", query, "error", err)
-		return nil, err
+		return nil, ierrors.ErrInternal
 	}
 
 	return &clonedCourseID, nil

@@ -8,11 +8,18 @@ import (
 	"github.com/pkg/errors"
 )
 
+
+type LoggerConfig struct {
+	Level      string `env:"LOGGER_LEVEL" env-default:"debug"`
+	Format     string `env:"LOGGER_FORMAT" env-default:"text"`
+	FileOutput string `env:"LOGGER_FILE_OUTPUT" env-default:""`
+}
+
 type Config struct {
 	Env      string      `env:"ENV" env-default:"local"`
-	Logger   string      `env:"LOGGER_LEVEL" env-default:"debug"`
 	APP_PORT string      `env:"APP_PORT" env-default:"8080"`
 	DB_CONNECTION string `env:"DB_CONNECTION" env-default:"postgres://user:password@localhost:5432/dbname"`
+	Logger   LoggerConfig
 }
 
 func MustLoad() (*Config, error) {
