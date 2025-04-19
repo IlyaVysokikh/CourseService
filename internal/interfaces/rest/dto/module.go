@@ -37,3 +37,13 @@ type CreateModule struct {
 type CreateModulesResponse struct {
 
 }
+
+type GetModuleResponse struct {
+	Module GetModule `json:"module"`
+	Tasks []Task `json:"tasks"`
+}
+
+type GetModule struct {
+	Id uuid.UUID `json:"id"`
+	Name string `json:"name"`
+}

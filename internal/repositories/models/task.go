@@ -5,6 +5,7 @@ import "github.com/google/uuid"
 type Task struct {
     Id               uuid.UUID `db:"id"`
     ModuleId         uuid.UUID `db:"id_module"`
+    Name             string    `db:"c_name"`
     Text             string    `db:"c_text"`
     Language         *string   `db:"c_language"`         // nullable string
     InitialCode      *string   `db:"c_initial_code"`     // nullable text

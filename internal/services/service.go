@@ -18,11 +18,13 @@ type (
 
 	ModuleService interface{
 		GetModulesByCourse(ctx context.Context, courseID uuid.UUID) ([]dto.ModuleList, error)
-		CreateModules(ctx context.Context, courseID uuid.UUID, modules dto.CreateModulesRequest) error 
+		CreateModules(ctx context.Context, courseID uuid.UUID, modules dto.CreateModulesRequest) error
+		GetModule(ctx context.Context, moduleID uuid.UUID) (dto.GetModule, error) 
 	}
 
 	TaskService interface {
 		GetTaskCount(ctx context.Context, moduleId uuid.UUID) (int, error)
+		GetTasksByModule(ctx context.Context, moduleId uuid.UUID) ([]dto.Task, error)
 	}
 
 	Service struct {

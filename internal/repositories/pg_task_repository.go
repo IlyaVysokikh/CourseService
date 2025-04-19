@@ -29,3 +29,15 @@ func (t *TaskRepositoryImpl) GetTasks(moduleId uuid.UUID) ([]models.Task, error)
 
 	return tasks, nil
 }
+
+func (t *TaskRepositoryImpl) GetTasksByModule(moduleId uuid.UUID) ([]models.Task, error) {
+	query := `SELECT * FROM t_task WHERE id_module = $1`
+	tasks := []models.Task{}
+	err := t.conn.Select(&tasks, query, moduleId)
+	if err != nil {
+		slog.Error("Error executing select", "query", query, "error", err)
+		return nil, err
+	}
+
+	return tasks, nil
+}

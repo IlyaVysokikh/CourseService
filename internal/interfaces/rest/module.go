@@ -33,3 +33,24 @@ func (h *Handler) CreateModulesHandler(ctx *gin.Context) {
 	
 	h.created(ctx, "Modules created successfully")
 }
+
+
+func (h *Handler) GetModuleHandler(ctx *gin.Context) {
+	moduleID := ctx.Param("id")
+	
+	moduleUuid, err := uuid.Parse(moduleID)
+	if err != nil {
+		slog.Error("Error parsing module ID", "error", err)
+		h.badRequest(ctx, err)
+		return
+	}
+
+	module, err := h.usecases.GetModuleUsecase.Handle(ctx, moduleUuid)
+	if err != nil {
+		slog.Error("Error getting module", "error", err)
+		ctx.JSON(500, gin.H{"error": "Internal server error"})
+		return
+	}
+	
+	h.ok(ctx, module)
+}

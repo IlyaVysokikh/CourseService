@@ -76,3 +76,15 @@ func (p *PgModuleRepository) UpdateModules(courseID uuid.UUID, modules []dto.Cre
 	}
 	return nil
 }
+
+func (p *PgModuleRepository) GetModule(moduleID uuid.UUID) (*models.Module, error) {
+	query := `SELECT * FROM t_module WHERE id = $1`
+	module := models.Module{}
+	err := p.conn.Get(&module, query, moduleID)
+	if err != nil {
+		slog.Error("Error executing select", "query", query, "error", err)
+		return nil, err
+	}
+
+	return &module, nil
+}

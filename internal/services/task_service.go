@@ -1,6 +1,7 @@
 package services
 
 import (
+	"CourseService/internal/interfaces/rest/dto"
 	"CourseService/internal/repositories"
 	"context"
 
@@ -24,4 +25,21 @@ func (t *TaskServiceImpl) GetTaskCount(ctx  context.Context, moduleId uuid.UUID)
 	}
 
 	return len(tasks), nil
+}
+
+func (t *TaskServiceImpl) GetTasksByModule(ctx context.Context, moduleId uuid.UUID) ([]dto.Task, error) {
+	tasks, err := t.repo.GetTasksByModule(moduleId)
+	if err != nil {
+		return nil, err
+	}
+
+	var taskList []dto.Task
+	for _, task := range tasks {
+		taskList = append(taskList, dto.Task{
+			Id:          task.Id,
+			Name:        task.Name,
+		})
+	}
+
+	return taskList, nil
 }

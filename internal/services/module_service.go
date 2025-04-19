@@ -63,3 +63,16 @@ func (ms ModuleServiceImpl) CreateModules(ctx context.Context, courseID uuid.UUI
 
 	return nil
 }
+
+func (ms ModuleServiceImpl) GetModule(ctx context.Context, moduleID uuid.UUID) (dto.GetModule, error) {
+	module, err := ms.repo.GetModule(moduleID)
+	if err != nil {
+		slog.Error("Error getting module", "error", err)
+		return dto.GetModule{}, err
+	}
+
+	return dto.GetModule{
+		Id:             module.ID,
+		Name:           module.Name,
+	}, nil
+}

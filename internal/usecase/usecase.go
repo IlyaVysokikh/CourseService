@@ -29,12 +29,17 @@ type (
 		Handle(ctx context.Context, courseID uuid.UUID, module *dto.CreateModulesRequest) error
 	}
 
+	GetModuleUsecase interface {
+		Handle(ctx context.Context, moduleID uuid.UUID) (dto.GetModuleResponse, error)
+	}
+
 	Usecase struct {
 		GetAllCourseUsecase GetAllCourseUsecase
 		GetCourseUsecase GetCourseUsecase
 		CreateCourseUsecase CreateCourseUsecase
 		CloneCourseUsecase CloneCourseUsecase
 		CreateModulesUsecase CreateModulesUsecase
+		GetModuleUsecase GetModuleUsecase
 	}
 )
 
@@ -45,5 +50,6 @@ func NewUsecase(services *services.Service) *Usecase {
 		CreateCourseUsecase: NewCreateCourseUsecase(services.CourseService),
 		CloneCourseUsecase: NewCloneCourseUsecase(services.CourseService),
 		CreateModulesUsecase: NewCreateModuleUsecase(services.ModuleService),
+		GetModuleUsecase: NewGetModuleUsecase(services.ModuleService, services.TaskService),
 	}
 }
