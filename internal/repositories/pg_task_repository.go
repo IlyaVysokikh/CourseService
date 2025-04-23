@@ -47,3 +47,19 @@ func (t *TaskRepositoryImpl) GetTasksByModule(moduleId uuid.UUID) ([]models.Task
 
 	return tasks, nil
 }
+
+func (t *TaskRepositoryImpl) GetTask(taskId uuid.UUID) (*models.Task, error) {
+	query := `SELECT * FROM t_task WHERE id = $1`
+	task := models.Task{}
+	err := t.conn.Get(&task, query, taskId)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			slog.Warn("No task found", "taskId", taskId)
+			return nil, ierrors.ErrNotFound
+		}
+		slog.Error("Error executing select", "query", query, "error", err)
+		return nil, ierrors.ErrInternal
+	}
+
+	return &task, nil
+}

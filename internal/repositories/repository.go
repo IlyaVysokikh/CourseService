@@ -26,6 +26,7 @@ type (
 	TaskRepository interface {
 		GetTasks(moduleId uuid.UUID) ([]models.Task, error)
 		GetTasksByModule(moduleId uuid.UUID) ([]models.Task, error)
+		GetTask(taskId uuid.UUID) (*models.Task, error)
 	}
 
 	ModuleAttachmentRepository interface {

@@ -2,9 +2,10 @@ package services
 
 import (
 	"CourseService/internal/interfaces/rest/dto"
-	ierrors "CourseService/pkg/errors"
 	"CourseService/internal/repositories"
+	ierrors "CourseService/pkg/errors"
 	"context"
+	"log/slog"
 
 	"github.com/google/uuid"
 )
@@ -51,4 +52,31 @@ func (t *TaskServiceImpl) GetTasksByModule(ctx context.Context, moduleId uuid.UU
 	}
 
 	return taskList, nil
+}
+
+func (t *TaskServiceImpl) GetTask(ctx context.Context, taskId uuid.UUID) (*dto.TaskExtended, error) {
+	task, err := t.repo.GetTask(taskId)
+	if err != nil {
+		if err == ierrors.ErrNotFound {
+			slog.Warn("Task not found", "taskId", taskId)
+			return nil, ierrors.New(ierrors.ErrNotFound, "task not found", err)
+		}
+
+		if err == ierrors.ErrInternal {
+			slog.Error("Failed to get task", "taskId", taskId, "error", err)
+			return nil, ierrors.New(ierrors.ErrInternal, "failed to get task", err)
+		}
+		return nil, err
+	}
+
+	return &dto.TaskExtended{
+		Id:               task.Id,
+		Name:             task.Name,
+		Text:             task.Text,
+		Language:         task.Language,
+		InitialCode:      task.InitialCode,
+		MemoryLimit:      task.MemoryLimit,
+		ExecutionTimeout: task.ExecutionTimeout,
+	}, nil
+
 }

@@ -33,6 +33,10 @@ type (
 		Handle(ctx context.Context, moduleID uuid.UUID) (dto.GetModuleResponse, error)
 	}
 
+	GetTaskUseCase interface {
+		Handle(ctx context.Context, taskId uuid.UUID) (*dto.TaskExtended, error)
+	}
+
 	Usecase struct {
 		GetAllCourseUsecase GetAllCourseUsecase
 		GetCourseUsecase GetCourseUsecase
@@ -40,6 +44,7 @@ type (
 		CloneCourseUsecase CloneCourseUsecase
 		CreateModulesUsecase CreateModulesUsecase
 		GetModuleUsecase GetModuleUsecase
+		GetTaskUsecase GetTaskUseCase
 	}
 )
 
@@ -51,5 +56,6 @@ func NewUsecase(services *services.Service) *Usecase {
 		CloneCourseUsecase: NewCloneCourseUsecase(services.CourseService),
 		CreateModulesUsecase: NewCreateModuleUsecase(services.ModuleService),
 		GetModuleUsecase: NewGetModuleUsecase(services.ModuleService, services.TaskService, services.ModuleAttachmentService),
+		GetTaskUsecase: NewGetTaskUseCase(services.TaskService),
 	}
 }
