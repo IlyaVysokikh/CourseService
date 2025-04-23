@@ -15,12 +15,14 @@ import (
 type GetModuleUsecaseImpl struct {
 	moduleService services.ModuleService
 	taskService services.TaskService
+	moduleAttachmentService services.ModuleAttachmentService 
 }
 
-func NewGetModuleUsecase(moduleService services.ModuleService, taskService services.TaskService) GetModuleUsecase {
+func NewGetModuleUsecase(moduleService services.ModuleService, taskService services.TaskService, moduleAttachemtService services.ModuleAttachmentService) GetModuleUsecase {
 	return GetModuleUsecaseImpl{
 		moduleService: moduleService,
 		taskService: taskService,
+		moduleAttachmentService: moduleAttachemtService,
 	}
 }
 
@@ -41,8 +43,16 @@ func (gmu GetModuleUsecaseImpl) Handle(ctx context.Context, moduleID uuid.UUID) 
 		return dto.GetModuleResponse{}, err
 	}
 
+	attachments, err := gmu.moduleAttachmentService.GetAllByModule(ctx, moduleID)
+	if err != nil {
+		slog.Error("Error getting module attachments", "error", err)
+		return dto.GetModuleResponse{}, err
+	}
+
+
 	return dto.GetModuleResponse{
 		Module: module,
 		Tasks:  tasks,
+		Attachment: attachments,
 	}, nil
 }

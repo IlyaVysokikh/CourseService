@@ -3,6 +3,7 @@ package services
 import (
 	"CourseService/internal/interfaces/rest/dto"
 	"CourseService/internal/repositories"
+	"CourseService/internal/repositories/models"
 	"context"
 
 	"github.com/google/uuid"
@@ -27,10 +28,15 @@ type (
 		GetTasksByModule(ctx context.Context, moduleId uuid.UUID) ([]dto.Task, error)
 	}
 
+	ModuleAttachmentService interface {
+		GetAllByModule(ctx context.Context, moduleId uuid.UUID) ([]*models.ModuleAttachment, error)
+	}
+
 	Service struct {
 		CourseService CourseService
 		ModuleService ModuleService
 		TaskService  TaskService
+		ModuleAttachmentService ModuleAttachmentService
 	}
 )
 
@@ -39,5 +45,6 @@ func NewService(repos *repositories.Repository) *Service {
 		CourseService: NewCourseServiceImpl(repos.CourseRepository),
 		ModuleService: NewModuleService(repos.ModuleRepository),
 		TaskService: NewTaskService(repos.TaskRepository),
+		ModuleAttachmentService: NewModuleAttachmentService(repos.ModuleAttachmentRepository),
 	}
 }

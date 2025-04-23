@@ -1,6 +1,8 @@
 package dto
 
 import (
+	"CourseService/internal/repositories/models"
+
 	"github.com/google/uuid"
 )
 
@@ -41,6 +43,7 @@ type CreateModulesResponse struct {
 type GetModuleResponse struct {
 	Module GetModule `json:"module"`
 	Tasks []Task `json:"tasks"`
+	Attachment []*models.ModuleAttachment `json:"attachment"`
 }
 
 type GetModule struct {

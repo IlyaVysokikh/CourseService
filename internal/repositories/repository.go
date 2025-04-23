@@ -28,10 +28,15 @@ type (
 		GetTasksByModule(moduleId uuid.UUID) ([]models.Task, error)
 	}
 
+	ModuleAttachmentRepository interface {
+		GetAllByModule(moduleId uuid.UUID) ([]*models.ModuleAttachment, error)
+	}
+
 	Repository struct {
 		CourseRepository CourseRepository
 		ModuleRepository ModuleRepository
 		TaskRepository   TaskRepository
+		ModuleAttachmentRepository ModuleAttachmentRepository
 	}
 )
 
@@ -40,5 +45,6 @@ func NewRepository(conn *sqlx.DB) *Repository {
 		CourseRepository: NewCourseRepositoryImpl(conn),
 		ModuleRepository: NewModuleRepositoryImpl(conn),
 		TaskRepository: NewTaskRepository(conn),
+		ModuleAttachmentRepository: NewModuleAttachmentRepository(conn),
 	}
 }	

@@ -50,6 +50,6 @@ func NewUsecase(services *services.Service) *Usecase {
 		CreateCourseUsecase: NewCreateCourseUsecase(services.CourseService),
 		CloneCourseUsecase: NewCloneCourseUsecase(services.CourseService),
 		CreateModulesUsecase: NewCreateModuleUsecase(services.ModuleService),
-		GetModuleUsecase: NewGetModuleUsecase(services.ModuleService, services.TaskService),
+		GetModuleUsecase: NewGetModuleUsecase(services.ModuleService, services.TaskService, services.ModuleAttachmentService),
 	}
 }
