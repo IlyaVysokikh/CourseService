@@ -8,17 +8,17 @@ import (
 	"github.com/google/uuid"
 )
 
-type DeleteCourseUseCase struct {
+type DeleteCourseUseCaseImpl struct {
 	courseService services.CourseService
 }
 
-func NewDeleteCourseUseCase(courseService services.CourseService) *DeleteCourseUseCase {
-	return &DeleteCourseUseCase{
+func NewDeleteCourseUseCase(courseService services.CourseService) DeleteCourseUsecase {
+	return &DeleteCourseUseCaseImpl{
 		courseService: courseService,
 	}
 }
 
-func (uc *DeleteCourseUseCase) Handle(ctx context.Context, id uuid.UUID) error {
+func (uc *DeleteCourseUseCaseImpl) Handle(ctx context.Context, id uuid.UUID) error {
 	if err := uc.courseService.DeleteCourse(ctx, id); err != nil {
 		if errors.Is(err, ierrors.ErrNotFound) {
 			return ierrors.ErrNotFound
