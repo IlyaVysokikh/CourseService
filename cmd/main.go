@@ -1,10 +1,10 @@
 package main
 
 import (
+	"io"
 	"log"
 	"log/slog"
 	"os"
-	"io"
 
 	"github.com/gin-gonic/gin"
 
@@ -30,7 +30,7 @@ func main() {
 	}
 
 	repositories := repositories.NewRepository(conn)
-	
+
 	services := services.NewService(repositories)
 
 	usecase := usecase.NewUsecase(services)
@@ -95,13 +95,17 @@ func configureLogger(cfg cfg.LoggerConfig) *slog.Logger {
 	return logger
 }
 
-
 func configureRoutes(router *gin.Engine, h *rest.Handler) {
 	router.GET("/health", h.HealthCheck)
+
 	router.GET("/courses", h.GetAllCoursesHandler)
 	router.GET("/courses/:id", h.GetCourseHandler)
+	router.DELETE("/courses/:id", h.DeleteCourseHandler)
 	router.POST("/courses", h.CreateCourseHandler)
 	router.POST("/courses/:id/clone", h.CloneCourseHandler)
+
 	router.POST("/courses/:id/modules", h.CreateModulesHandler)
 	router.GET("/modules/:id", h.GetModuleHandler)
+
+	router.GET("/tasks/:id", h.GetTaskHandler)
 }

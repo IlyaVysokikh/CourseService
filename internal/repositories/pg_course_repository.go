@@ -5,6 +5,7 @@ import (
 	"CourseService/internal/repositories/models"
 	ierrors "CourseService/pkg/errors"
 	"database/sql"
+	"errors"
 
 	"log/slog"
 	"strings"
@@ -75,7 +76,6 @@ func (cr *PgCourseRepository) GetCourse(id uuid.UUID) (*models.Course, error) {
 	return course, nil
 }
 
-
 func (cr *PgCourseRepository) Create(course *dto.CreateCourse) (*uuid.UUID, error) {
 	const query = `
 		INSERT INTO t_course (
@@ -110,7 +110,6 @@ func (cr *PgCourseRepository) Create(course *dto.CreateCourse) (*uuid.UUID, erro
 	return &insertedID, nil
 }
 
-
 func (cr *PgCourseRepository) Clone(course *dto.CloneCourseRequest) (*uuid.UUID, error) {
 	query := `
 		SELECT clone_course_with_content($1, $2, $3, $4, $5, $6)
@@ -135,4 +134,16 @@ func (cr *PgCourseRepository) Clone(course *dto.CloneCourseRequest) (*uuid.UUID,
 	return &clonedCourseID, nil
 }
 
+func (cr *PgCourseRepository) Delete(id uuid.UUID) error {
+	query := `DELETE FROM t_course WHERE id = $1`
+	_, err := cr.conn.Exec(query, id)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return ierrors.ErrNotFound
+		}
+		slog.Error("Error executing delete", "query", query, "error", err)
+		return ierrors.ErrInternal
+	}
 
+	return nil
+}

@@ -10,17 +10,18 @@ import (
 )
 
 type (
-	CourseService interface{
+	CourseService interface {
 		GetAllCourses(ctx context.Context, filter *dto.CourseFilter) ([]dto.CourseList, error)
 		GetCourse(ctx context.Context, id uuid.UUID) (*dto.Course, error)
 		CreateCourse(ctx context.Context, course *dto.CreateCourse) (uuid.UUID, error)
 		CloneCourse(ctx context.Context, course *dto.CloneCourseRequest) (uuid.UUID, error)
+		DeleteCourse(ctx context.Context, id uuid.UUID) error
 	}
 
-	ModuleService interface{
+	ModuleService interface {
 		GetModulesByCourse(ctx context.Context, courseID uuid.UUID) ([]dto.ModuleList, error)
 		CreateModules(ctx context.Context, courseID uuid.UUID, modules dto.CreateModulesRequest) error
-		GetModule(ctx context.Context, moduleID uuid.UUID) (dto.GetModule, error) 
+		GetModule(ctx context.Context, moduleID uuid.UUID) (dto.GetModule, error)
 	}
 
 	TaskService interface {
@@ -34,18 +35,18 @@ type (
 	}
 
 	Service struct {
-		CourseService CourseService
-		ModuleService ModuleService
-		TaskService  TaskService
+		CourseService           CourseService
+		ModuleService           ModuleService
+		TaskService             TaskService
 		ModuleAttachmentService ModuleAttachmentService
 	}
 )
 
 func NewService(repos *repositories.Repository) *Service {
 	return &Service{
-		CourseService: NewCourseServiceImpl(repos.CourseRepository),
-		ModuleService: NewModuleService(repos.ModuleRepository),
-		TaskService: NewTaskService(repos.TaskRepository),
+		CourseService:           NewCourseServiceImpl(repos.CourseRepository),
+		ModuleService:           NewModuleService(repos.ModuleRepository),
+		TaskService:             NewTaskService(repos.TaskRepository),
 		ModuleAttachmentService: NewModuleAttachmentService(repos.ModuleAttachmentRepository),
 	}
 }

@@ -25,7 +25,7 @@ type (
 		Handle(ctx context.Context, course *dto.CloneCourseRequest) (dto.CreateCourseResponse, error)
 	}
 
-	CreateModulesUsecase interface{
+	CreateModulesUsecase interface {
 		Handle(ctx context.Context, courseID uuid.UUID, module *dto.CreateModulesRequest) error
 	}
 
@@ -37,25 +37,31 @@ type (
 		Handle(ctx context.Context, taskId uuid.UUID) (*dto.TaskExtended, error)
 	}
 
+	DeleteCourseUsecase interface {
+		Handle(ctx context.Context, id uuid.UUID) error
+	}
+
 	Usecase struct {
-		GetAllCourseUsecase GetAllCourseUsecase
-		GetCourseUsecase GetCourseUsecase
-		CreateCourseUsecase CreateCourseUsecase
-		CloneCourseUsecase CloneCourseUsecase
+		GetAllCourseUsecase  GetAllCourseUsecase
+		GetCourseUsecase     GetCourseUsecase
+		CreateCourseUsecase  CreateCourseUsecase
+		CloneCourseUsecase   CloneCourseUsecase
 		CreateModulesUsecase CreateModulesUsecase
-		GetModuleUsecase GetModuleUsecase
-		GetTaskUsecase GetTaskUseCase
+		GetModuleUsecase     GetModuleUsecase
+		GetTaskUsecase       GetTaskUseCase
+		DeleteCourseUsecase  DeleteCourseUsecase
 	}
 )
 
 func NewUsecase(services *services.Service) *Usecase {
 	return &Usecase{
-		GetAllCourseUsecase: NewGetAllCourseUsecase(services.CourseService),
-		GetCourseUsecase: NewGetCourseUsecase(services.CourseService, services.ModuleService, services.TaskService),
-		CreateCourseUsecase: NewCreateCourseUsecase(services.CourseService),
-		CloneCourseUsecase: NewCloneCourseUsecase(services.CourseService),
+		GetAllCourseUsecase:  NewGetAllCourseUsecase(services.CourseService),
+		GetCourseUsecase:     NewGetCourseUsecase(services.CourseService, services.ModuleService, services.TaskService),
+		CreateCourseUsecase:  NewCreateCourseUsecase(services.CourseService),
+		CloneCourseUsecase:   NewCloneCourseUsecase(services.CourseService),
 		CreateModulesUsecase: NewCreateModuleUsecase(services.ModuleService),
-		GetModuleUsecase: NewGetModuleUsecase(services.ModuleService, services.TaskService, services.ModuleAttachmentService),
-		GetTaskUsecase: NewGetTaskUseCase(services.TaskService),
+		GetModuleUsecase:     NewGetModuleUsecase(services.ModuleService, services.TaskService, services.ModuleAttachmentService),
+		GetTaskUsecase:       NewGetTaskUseCase(services.TaskService),
+		DeleteCourseUsecase:  NewDeleteCourseUseCase(services.CourseService),
 	}
 }

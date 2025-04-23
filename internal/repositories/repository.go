@@ -9,14 +9,15 @@ import (
 )
 
 type (
-	CourseRepository interface{
+	CourseRepository interface {
 		GetAllCourses(filter *dto.CourseFilter) ([]models.Course, error)
 		GetCourse(id uuid.UUID) (*models.Course, error)
 		Create(course *dto.CreateCourse) (*uuid.UUID, error)
 		Clone(course *dto.CloneCourseRequest) (*uuid.UUID, error)
+		Delete(id uuid.UUID) error
 	}
 
-	ModuleRepository interface{
+	ModuleRepository interface {
 		GetModulesByCourse(courseID uuid.UUID) ([]models.Module, error)
 		CreateModules(courseID uuid.UUID, modules []dto.CreateModule) error
 		UpdateModules(courseID uuid.UUID, modules []dto.CreateModule) error
@@ -34,18 +35,18 @@ type (
 	}
 
 	Repository struct {
-		CourseRepository CourseRepository
-		ModuleRepository ModuleRepository
-		TaskRepository   TaskRepository
+		CourseRepository           CourseRepository
+		ModuleRepository           ModuleRepository
+		TaskRepository             TaskRepository
 		ModuleAttachmentRepository ModuleAttachmentRepository
 	}
 )
 
 func NewRepository(conn *sqlx.DB) *Repository {
 	return &Repository{
-		CourseRepository: NewCourseRepositoryImpl(conn),
-		ModuleRepository: NewModuleRepositoryImpl(conn),
-		TaskRepository: NewTaskRepository(conn),
+		CourseRepository:           NewCourseRepositoryImpl(conn),
+		ModuleRepository:           NewModuleRepositoryImpl(conn),
+		TaskRepository:             NewTaskRepository(conn),
 		ModuleAttachmentRepository: NewModuleAttachmentRepository(conn),
 	}
-}	
+}

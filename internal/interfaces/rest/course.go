@@ -2,8 +2,9 @@ package rest
 
 import (
 	"CourseService/internal/interfaces/rest/dto"
-	"log/slog"
 	ierrors "CourseService/pkg/errors"
+	"errors"
+	"log/slog"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -83,7 +84,6 @@ func (h *Handler) CreateCourseHandler(ctx *gin.Context) {
 		return
 	}
 
-
 	courseResponse, err := h.usecases.CreateCourseUsecase.Handle(ctx, course)
 	if err != nil {
 		slog.Error("Error creating course", "error", err)
@@ -120,4 +120,27 @@ func (h *Handler) CloneCourseHandler(ctx *gin.Context) {
 	}
 
 	h.created(ctx, clonedID)
+}
+
+func (h *Handler) DeleteCourseHandler(ctx *gin.Context) {
+	idUuid, err := uuid.Parse(ctx.Param("id"))
+	if err != nil {
+		slog.Error("Error parsing course id uuid", "error", err)
+		h.badRequest(ctx, err)
+		return
+	}
+
+	err = h.usecases.DeleteCourseUsecase.Handle(ctx, idUuid)
+	if err != nil {
+		if errors.Is(err, ierrors.ErrNotFound) {
+			h.notFound(ctx, err)
+			return
+		}
+
+		h.internalServerError(ctx, err)
+		return
+	}
+
+	h.noContent(ctx)
+	return
 }

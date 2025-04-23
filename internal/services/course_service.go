@@ -4,6 +4,7 @@ import (
 	"CourseService/internal/interfaces/rest/dto"
 	"CourseService/internal/repositories"
 	ierrors "CourseService/pkg/errors"
+	"errors"
 
 	"context"
 	"log/slog"
@@ -13,13 +14,13 @@ import (
 )
 
 type CourseServiceImpl struct {
-	repo repositories.CourseRepository
+	repo       repositories.CourseRepository
 	dateFormat string
 }
 
 func NewCourseServiceImpl(repo repositories.CourseRepository) CourseService {
 	return &CourseServiceImpl{
-		repo: repo,
+		repo:       repo,
 		dateFormat: "2006-01-02T15:04:05Z07:00",
 	}
 }
@@ -29,7 +30,7 @@ func (c *CourseServiceImpl) GetAllCourses(ctx context.Context, filter *dto.Cours
 	// todo На user service фильтр по роли. Студент получает только свои курсы, а препод все
 	courses, err := c.repo.GetAllCourses(filter)
 	if err != nil {
-		if err == ierrors.ErrInternal {
+		if errors.Is(err, ierrors.ErrInternal) {
 			slog.Error("Error getting all courses", "error", err)
 			return nil, ierrors.New(ierrors.ErrInternal, "failed to get courses", err)
 		}
@@ -49,30 +50,30 @@ func (c *CourseServiceImpl) GetAllCourses(ctx context.Context, filter *dto.Cours
 
 		if parsedDateEnd.Before(time.Now()) || parsedDateEnd.Equal(time.Now()) {
 			isArchived = true
-		}		
+		}
 
 		result = append(result, dto.CourseList{
-			Id: course.ID,
-			Name: course.Name,
+			Id:         course.ID,
+			Name:       course.Name,
 			IsArchived: isArchived,
-			ImagePath: course.ImagePath,
+			ImagePath:  course.ImagePath,
 		})
 	}
-	
+
 	return result, nil
 }
 
 func (c *CourseServiceImpl) GetCourse(ctx context.Context, id uuid.UUID) (*dto.Course, error) {
 	course, err := c.repo.GetCourse(id)
 	if err != nil {
-		if err == ierrors.ErrNotFound {
+		if errors.Is(err, ierrors.ErrNotFound) {
 			slog.Warn("Course not found", "courseID", id)
 			return nil, ierrors.New(ierrors.ErrNotFound, "course not found", err)
-		} else if err == ierrors.ErrInternal {
+		} else if errors.Is(err, ierrors.ErrInternal) {
 			slog.Error("Error getting course", "error", err)
 			return nil, ierrors.New(ierrors.ErrInternal, "failed to get course", err)
 		}
-		
+
 		slog.Error("Error getting course", "error", err)
 		return nil, err
 	}
@@ -106,7 +107,7 @@ func (c *CourseServiceImpl) GetCourse(ctx context.Context, id uuid.UUID) (*dto.C
 func (c *CourseServiceImpl) CreateCourse(ctx context.Context, course *dto.CreateCourse) (uuid.UUID, error) {
 	createdCourseId, err := c.repo.Create(course)
 	if err != nil {
-		if err == ierrors.ErrInternal {
+		if errors.Is(err, ierrors.ErrInternal) {
 			slog.Error("Error creating course", "error", err)
 			return uuid.Nil, ierrors.New(ierrors.ErrInternal, "failed to create course", err)
 		}
@@ -121,14 +122,30 @@ func (c *CourseServiceImpl) CreateCourse(ctx context.Context, course *dto.Create
 func (c *CourseServiceImpl) CloneCourse(ctx context.Context, course *dto.CloneCourseRequest) (uuid.UUID, error) {
 	createdCourseId, err := c.repo.Clone(course)
 	if err != nil {
-		if err == ierrors.ErrInternal {
+		if errors.Is(err, ierrors.ErrInternal) {
 			slog.Error("Error cloning course", "error", err)
 			return uuid.Nil, ierrors.New(ierrors.ErrInternal, "failed to clone course", err)
 		}
-		
+
 		slog.Error("Error cloning course", "error", err)
 		return uuid.Nil, err
 	}
 
 	return *createdCourseId, nil
+}
+
+func (c *CourseServiceImpl) DeleteCourse(ctx context.Context, id uuid.UUID) error {
+	if err := c.repo.Delete(id); err != nil {
+		if errors.Is(err, ierrors.ErrNotFound) {
+			slog.Warn("Course not found", "courseID", id)
+			return ierrors.New(ierrors.ErrNotFound, "course not found", err)
+		}
+
+		if errors.Is(err, ierrors.ErrInternal) {
+			slog.Error("Error deleting course", "error", err)
+			return ierrors.New(ierrors.ErrInternal, "failed to delete course", err)
+		}
+	}
+
+	return nil
 }
