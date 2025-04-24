@@ -23,6 +23,7 @@ type (
 		CreateModules(courseID uuid.UUID, modules []dto.CreateModule) error
 		UpdateModules(courseID uuid.UUID, modules []dto.CreateModule) error
 		GetModule(moduleID uuid.UUID) (*models.Module, error)
+		DeleteModule(id uuid.UUID) error
 	}
 
 	TaskRepository interface {

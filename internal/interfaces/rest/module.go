@@ -3,11 +3,11 @@ package rest
 import (
 	"CourseService/internal/interfaces/rest/dto"
 	ierrors "CourseService/pkg/errors"
-	
+
 	"errors"
 	"github.com/gin-gonic/gin"
-	"log/slog"
 	"github.com/google/uuid"
+	"log/slog"
 )
 
 func (h *Handler) CreateModulesHandler(ctx *gin.Context) {
@@ -32,14 +32,13 @@ func (h *Handler) CreateModulesHandler(ctx *gin.Context) {
 		ctx.JSON(500, gin.H{"error": "Internal server error"})
 		return
 	}
-	
+
 	h.created(ctx, "Modules created successfully")
 }
 
-
 func (h *Handler) GetModuleHandler(ctx *gin.Context) {
 	moduleID := ctx.Param("id")
-	
+
 	moduleUuid, err := uuid.Parse(moduleID)
 	if err != nil {
 		slog.Error("Error parsing module ID", "error", err)
@@ -58,6 +57,31 @@ func (h *Handler) GetModuleHandler(ctx *gin.Context) {
 		}
 		return
 	}
-	
+
 	h.ok(ctx, module)
+}
+
+func (h *Handler) DeleteModuleHandler(ctx *gin.Context) {
+	moduleID := ctx.Param("id")
+	moduleUuid, err := uuid.Parse(moduleID)
+	if err != nil {
+		slog.Error("Error parsing module ID", "error", err)
+		h.badRequest(ctx, err)
+		return
+	}
+
+	if err = h.usecases.DeleteModuleUseCase.Handle(ctx, moduleUuid); err != nil {
+		if errors.Is(err, ierrors.ErrNotFound) {
+			slog.Warn("Module not found", "moduleID", moduleUuid)
+			h.notFound(ctx, err)
+			return
+		}
+
+		slog.Error("Error deleting module", "moduleID", moduleUuid, "error", err)
+		h.internalServerError(ctx, err)
+		return
+	}
+
+	h.noContent(ctx)
+	return
 }

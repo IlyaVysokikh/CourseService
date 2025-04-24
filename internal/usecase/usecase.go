@@ -45,6 +45,10 @@ type (
 		Handle(ctx context.Context, id uuid.UUID, request dto.UpdateCourseRequest) error
 	}
 
+	DeleteModuleUseCase interface {
+		Handle(ctx context.Context, id uuid.UUID) error
+	}
+
 	Usecase struct {
 		GetAllCourseUsecase  GetAllCourseUsecase
 		GetCourseUsecase     GetCourseUsecase
@@ -55,6 +59,7 @@ type (
 		GetTaskUsecase       GetTaskUseCase
 		DeleteCourseUsecase  DeleteCourseUsecase
 		UpdateCourseUsecase  UpdateCourseUsecase
+		DeleteModuleUseCase  DeleteModuleUseCase
 	}
 )
 
@@ -69,5 +74,6 @@ func NewUsecase(services *services.Service) *Usecase {
 		GetTaskUsecase:       NewGetTaskUseCase(services.TaskService),
 		DeleteCourseUsecase:  NewDeleteCourseUseCase(services.CourseService),
 		UpdateCourseUsecase:  NewUpdateCourseUsecase(services.CourseService),
+		DeleteModuleUseCase:  NewDeleteModuleUseCase(services.ModuleService),
 	}
 }

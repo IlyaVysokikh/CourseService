@@ -5,10 +5,10 @@ import (
 	"CourseService/internal/repositories/models"
 	ierrors "CourseService/pkg/errors"
 
-	"log/slog"
-	"errors"
 	"database/sql"
-	
+	"errors"
+	"log/slog"
+
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
 )
@@ -36,7 +36,7 @@ func (p *PgModuleRepository) GetModulesByCourse(courseID uuid.UUID) ([]models.Mo
 }
 
 func (p *PgModuleRepository) CreateModules(courseID uuid.UUID, modules []dto.CreateModule) error {
-    query := `INSERT INTO 
+	query := `INSERT INTO 
 	t_module (id_course, c_name, c_date_start, c_sequence_number) VALUES
 	(:id_course, :c_name, :c_date_start, :c_sequence_number)`
 
@@ -96,4 +96,20 @@ func (p *PgModuleRepository) GetModule(moduleID uuid.UUID) (*models.Module, erro
 	}
 
 	return &module, nil
+}
+
+func (p *PgModuleRepository) DeleteModule(id uuid.UUID) error {
+	query := `DELETE FROM t_module WHERE id = $1`
+	_, err := p.conn.Exec(query, id)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			slog.Warn("module not found", "id", id)
+			return ierrors.ErrNotFound
+		}
+
+		slog.Error("error executing delete", "query", query, "error", err)
+		return ierrors.ErrInternal
+	}
+
+	return nil
 }

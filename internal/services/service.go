@@ -23,6 +23,7 @@ type (
 		GetModulesByCourse(ctx context.Context, courseID uuid.UUID) ([]dto.ModuleList, error)
 		CreateModules(ctx context.Context, courseID uuid.UUID, modules dto.CreateModulesRequest) error
 		GetModule(ctx context.Context, moduleID uuid.UUID) (dto.GetModule, error)
+		DeleteModule(ctx context.Context, id uuid.UUID) error
 	}
 
 	TaskService interface {

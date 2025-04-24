@@ -3,10 +3,10 @@ package services
 import (
 	"CourseService/internal/interfaces/rest/dto"
 	"CourseService/internal/repositories"
-	"context"
-	"log/slog"
-	"errors"
 	ierrors "CourseService/pkg/errors"
+	"context"
+	"errors"
+	"log/slog"
 
 	"github.com/google/uuid"
 )
@@ -25,7 +25,7 @@ func (ms ModuleServiceImpl) GetModulesByCourse(ctx context.Context, courseID uui
 	modules, err := ms.repo.GetModulesByCourse(courseID)
 	if err != nil {
 		slog.Error("error getting modules by course", slog.Any("err", err))
-		
+
 		if errors.Is(err, ierrors.ErrNotFound) {
 			return nil, ierrors.New(ierrors.ErrNotFound, "modules not found", err)
 		}
@@ -36,9 +36,9 @@ func (ms ModuleServiceImpl) GetModulesByCourse(ctx context.Context, courseID uui
 	var moduleList []dto.ModuleList
 	for _, module := range modules {
 		moduleList = append(moduleList, dto.ModuleList{
-			Id:   module.ID,
-			Name: module.Name,
-			DateStart: module.DateStart,
+			Id:             module.ID,
+			Name:           module.Name,
+			DateStart:      module.DateStart,
 			SequenceNumber: module.SequenceNumber,
 		})
 	}
@@ -49,12 +49,12 @@ func (ms ModuleServiceImpl) GetModulesByCourse(ctx context.Context, courseID uui
 func (ms ModuleServiceImpl) CreateModules(ctx context.Context, courseID uuid.UUID, modules dto.CreateModulesRequest) error {
 	var newModules []dto.CreateModule
 	var incomingModules []dto.CreateModule
-	
+
 	for i := 0; i < len(modules.Modules); i++ {
 		if modules.Modules[i].Id == nil || *modules.Modules[i].Id == uuid.Nil {
-			incomingModules = append(incomingModules, modules.Modules[i]) 
+			incomingModules = append(incomingModules, modules.Modules[i])
 		} else {
-			newModules = append(newModules, modules.Modules[i]) 
+			newModules = append(newModules, modules.Modules[i])
 		}
 	}
 
@@ -67,7 +67,6 @@ func (ms ModuleServiceImpl) CreateModules(ctx context.Context, courseID uuid.UUI
 		slog.Error("error creating modules", slog.Any("err", err))
 		return ierrors.New(ierrors.ErrInternal, "failed to create modules", err)
 	}
-
 
 	return nil
 }
@@ -85,7 +84,19 @@ func (ms ModuleServiceImpl) GetModule(ctx context.Context, moduleID uuid.UUID) (
 	}
 
 	return dto.GetModule{
-		Id:             module.ID,
-		Name:           module.Name,
+		Id:   module.ID,
+		Name: module.Name,
 	}, nil
+}
+
+func (ms ModuleServiceImpl) DeleteModule(ctx context.Context, id uuid.UUID) error {
+	if err := ms.repo.DeleteModule(id); err != nil {
+		slog.Error("error deleting module", slog.Any("err", err))
+		if errors.Is(err, ierrors.ErrNotFound) {
+			return ierrors.New(ierrors.ErrNotFound, "module not found", err)
+		}
+		return ierrors.New(ierrors.ErrInternal, "failed to delete module", err)
+	}
+
+	return nil
 }
