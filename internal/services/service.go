@@ -16,6 +16,7 @@ type (
 		CreateCourse(ctx context.Context, course *dto.CreateCourse) (uuid.UUID, error)
 		CloneCourse(ctx context.Context, course *dto.CloneCourseRequest) (uuid.UUID, error)
 		DeleteCourse(ctx context.Context, id uuid.UUID) error
+		UpdateCourse(ctx context.Context, id uuid.UUID, request dto.UpdateCourseRequest) error
 	}
 
 	ModuleService interface {

@@ -6,6 +6,7 @@ import (
 	ierrors "CourseService/pkg/errors"
 	"database/sql"
 	"errors"
+	"fmt"
 
 	"log/slog"
 	"strings"
@@ -143,6 +144,60 @@ func (cr *PgCourseRepository) Delete(id uuid.UUID) error {
 		}
 		slog.Error("Error executing delete", "query", query, "error", err)
 		return ierrors.ErrInternal
+	}
+
+	return nil
+}
+
+func (cr *PgCourseRepository) Update(id uuid.UUID, request dto.UpdateCourseRequest) error {
+	query := "UPDATE t_course SET "
+	args := []interface{}{}
+	parts := []string{}
+
+	if request.Name != nil {
+		parts = append(parts, fmt.Sprintf("c_name = $%d", len(args)+1))
+		args = append(args, *request.Name)
+	}
+
+	if request.Description != nil {
+		parts = append(parts, fmt.Sprintf("c_description = $%d", len(args)+1))
+		args = append(args, *request.Description)
+	}
+
+	if request.DateStart != nil {
+		parts = append(parts, fmt.Sprintf("c_date_start = $%d", len(args)+1))
+		args = append(args, *request.DateStart)
+	}
+
+	if request.DateEnd != nil {
+		parts = append(parts, fmt.Sprintf("c_date_end = $%d", len(args)+1))
+		args = append(args, *request.DateEnd)
+	}
+
+	if request.ImagePath != nil {
+		parts = append(parts, fmt.Sprintf("c_image_path = $%d", len(args)+1))
+		args = append(args, *request.ImagePath)
+	}
+	if len(parts) == 0 {
+		return nil
+	}
+
+	query += strings.Join(parts, ", ") + fmt.Sprintf(" WHERE id = $%d", len(args)+1)
+	args = append(args, id)
+
+	result, err := cr.conn.Exec(query, args...)
+	if err != nil {
+		slog.Error("Error executing update", "query", query, "error", err)
+		return ierrors.ErrInternal
+	}
+
+	affected, err := result.RowsAffected()
+	if err != nil {
+		slog.Error("Error executing update affected rows", "query", query, "error", err)
+		return ierrors.ErrInternal
+	}
+	if affected == 0 {
+		return ierrors.ErrNotFound
 	}
 
 	return nil

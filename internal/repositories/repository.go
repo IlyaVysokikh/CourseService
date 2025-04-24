@@ -15,6 +15,7 @@ type (
 		Create(course *dto.CreateCourse) (*uuid.UUID, error)
 		Clone(course *dto.CloneCourseRequest) (*uuid.UUID, error)
 		Delete(id uuid.UUID) error
+		Update(id uuid.UUID, request dto.UpdateCourseRequest) error
 	}
 
 	ModuleRepository interface {

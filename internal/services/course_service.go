@@ -149,3 +149,37 @@ func (c *CourseServiceImpl) DeleteCourse(ctx context.Context, id uuid.UUID) erro
 
 	return nil
 }
+
+func (c *CourseServiceImpl) UpdateCourse(ctx context.Context, id uuid.UUID, request dto.UpdateCourseRequest) error {
+	if request.DateStart != nil && request.DateEnd != nil {
+		parsedDateStart, err := time.Parse(c.dateFormat, *request.DateStart)
+		if err != nil {
+			slog.Error("Error parsing course start date", "error", err)
+			return ierrors.ErrInvalidInput
+		}
+		parsedDateEnd, err := time.Parse(c.dateFormat, *request.DateEnd)
+		if err != nil {
+			slog.Error("Error parsing course end date", "error", err)
+			return ierrors.ErrInvalidInput
+		}
+
+		if parsedDateStart.After(parsedDateEnd) || parsedDateStart.Equal(parsedDateEnd) {
+			slog.Error("Start date is after or equal to end date", "start", parsedDateStart, "end", parsedDateEnd)
+			return ierrors.ErrInvalidInput
+		}
+	}
+
+	err := c.repo.Update(id, request)
+	if err != nil {
+		slog.Error("Error updating course", "err", err)
+		if errors.Is(err, ierrors.ErrNotFound) {
+			return ierrors.New(ierrors.ErrNotFound, "course not found", err)
+		}
+
+		if errors.Is(err, ierrors.ErrInternal) {
+			return ierrors.New(ierrors.ErrInternal, "failed to update course", err)
+		}
+	}
+
+	return nil
+}

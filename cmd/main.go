@@ -102,6 +102,7 @@ func configureRoutes(router *gin.Engine, h *rest.Handler) {
 	router.GET("/courses/:id", h.GetCourseHandler)
 	router.DELETE("/courses/:id", h.DeleteCourseHandler)
 	router.POST("/courses", h.CreateCourseHandler)
+	router.PATCH("/courses/:id", h.UpdateCourseHandler)
 	router.POST("/courses/:id/clone", h.CloneCourseHandler)
 
 	router.POST("/courses/:id/modules", h.CreateModulesHandler)

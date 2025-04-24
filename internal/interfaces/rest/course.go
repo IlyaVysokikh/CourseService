@@ -144,3 +144,34 @@ func (h *Handler) DeleteCourseHandler(ctx *gin.Context) {
 	h.noContent(ctx)
 	return
 }
+
+func (h *Handler) UpdateCourseHandler(ctx *gin.Context) {
+	idUuid, err := uuid.Parse(ctx.Param("id"))
+	if err != nil {
+		slog.Error("Error parsing course id uuid", "error", err)
+		h.badRequest(ctx, ierrors.ErrInvalidInput)
+	}
+	var request dto.UpdateCourseRequest
+
+	if err := ctx.ShouldBindJSON(&request); err != nil {
+		slog.Error("Error binding json", "error", err)
+		h.badRequest(ctx, err)
+	}
+
+	if err = h.usecases.UpdateCourseUsecase.Handle(ctx, idUuid, request); err != nil {
+		if errors.Is(err, ierrors.ErrNotFound) {
+			h.notFound(ctx, err)
+			return
+		}
+
+		if errors.Is(err, ierrors.ErrInvalidInput) {
+			h.badRequest(ctx, err)
+			return
+		}
+
+		h.internalServerError(ctx, err)
+		return
+	}
+
+	h.ok(ctx, nil)
+}
