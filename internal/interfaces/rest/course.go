@@ -18,9 +18,9 @@ func (h *Handler) GetAllCoursesHandler(ctx *gin.Context) {
 		return
 	}
 
-	courses, err := h.usecases.GetAllCourseUsecase.Handle(ctx, courseFilter)
+	courses, err := h.useCases.GetAllCourseUseCase.Handle(ctx, courseFilter)
 	if err != nil {
-		if err == ierrors.ErrInternal {
+		if errors.Is(err, ierrors.ErrInternal) {
 			slog.Error("Error getting all courses", "error", err)
 			h.internalServerError(ctx, err)
 			return
@@ -48,21 +48,21 @@ func (h *Handler) GetCourseHandler(ctx *gin.Context) {
 		h.badRequest(ctx, err)
 	}
 
-	course, err := h.usecases.GetCourseUsecase.Handle(ctx, uuidId)
+	course, err := h.useCases.GetCourseUseCase.Handle(ctx, uuidId)
 	if err != nil {
-		if err == ierrors.ErrNotFound {
+		if errors.Is(err, ierrors.ErrNotFound) {
 			slog.Warn("Course not found", "courseID", id)
 			h.notFound(ctx, err)
 			return
 		}
 
-		if err == ierrors.ErrInternal {
+		if errors.Is(err, ierrors.ErrInternal) {
 			slog.Error("Error getting course", "error", err)
 			h.internalServerError(ctx, err)
 			return
 		}
 
-		if err == ierrors.ErrInvalidInput {
+		if errors.Is(err, ierrors.ErrInvalidInput) {
 			slog.Warn("Invalid input", "courseID", id)
 			h.badRequest(ctx, err)
 			return
@@ -84,7 +84,7 @@ func (h *Handler) CreateCourseHandler(ctx *gin.Context) {
 		return
 	}
 
-	courseResponse, err := h.usecases.CreateCourseUsecase.Handle(ctx, course)
+	courseResponse, err := h.useCases.CreateCourseUseCase.Handle(ctx, course)
 	if err != nil {
 		slog.Error("Error creating course", "error", err)
 		h.badRequest(ctx, err)
@@ -112,7 +112,7 @@ func (h *Handler) CloneCourseHandler(ctx *gin.Context) {
 
 	req.ParentCourseID = parentID
 
-	clonedID, err := h.usecases.CloneCourseUsecase.Handle(ctx, &req)
+	clonedID, err := h.useCases.CloneCourseUseCase.Handle(ctx, &req)
 	if err != nil {
 		slog.Error("Error cloning course", "error", err)
 		h.internalServerError(ctx, err)
@@ -130,7 +130,7 @@ func (h *Handler) DeleteCourseHandler(ctx *gin.Context) {
 		return
 	}
 
-	err = h.usecases.DeleteCourseUsecase.Handle(ctx, idUuid)
+	err = h.useCases.DeleteCourseUseCase.Handle(ctx, idUuid)
 	if err != nil {
 		if errors.Is(err, ierrors.ErrNotFound) {
 			h.notFound(ctx, err)
@@ -158,7 +158,7 @@ func (h *Handler) UpdateCourseHandler(ctx *gin.Context) {
 		h.badRequest(ctx, err)
 	}
 
-	if err = h.usecases.UpdateCourseUsecase.Handle(ctx, idUuid, request); err != nil {
+	if err = h.useCases.UpdateCourseUseCase.Handle(ctx, idUuid, request); err != nil {
 		if errors.Is(err, ierrors.ErrNotFound) {
 			h.notFound(ctx, err)
 			return

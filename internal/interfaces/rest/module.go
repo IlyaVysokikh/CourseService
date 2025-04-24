@@ -26,7 +26,7 @@ func (h *Handler) CreateModulesHandler(ctx *gin.Context) {
 		h.badRequest(ctx, err)
 		return
 	}
-	err = h.usecases.CreateModulesUsecase.Handle(ctx, courseUuid, &module)
+	err = h.useCases.CreateModulesUseCase.Handle(ctx, courseUuid, &module)
 	if err != nil {
 		slog.Error("Error creating modules", "error", err)
 		ctx.JSON(500, gin.H{"error": "Internal server error"})
@@ -46,7 +46,7 @@ func (h *Handler) GetModuleHandler(ctx *gin.Context) {
 		return
 	}
 
-	module, err := h.usecases.GetModuleUsecase.Handle(ctx, moduleUuid)
+	module, err := h.useCases.GetModuleUseCase.Handle(ctx, moduleUuid)
 	if err != nil {
 		if errors.Is(err, ierrors.ErrNotFound) {
 			slog.Warn("Module not found", "moduleID", moduleUuid)
@@ -70,7 +70,7 @@ func (h *Handler) DeleteModuleHandler(ctx *gin.Context) {
 		return
 	}
 
-	if err = h.usecases.DeleteModuleUseCase.Handle(ctx, moduleUuid); err != nil {
+	if err = h.useCases.DeleteModuleUseCase.Handle(ctx, moduleUuid); err != nil {
 		if errors.Is(err, ierrors.ErrNotFound) {
 			slog.Warn("Module not found", "moduleID", moduleUuid)
 			h.notFound(ctx, err)

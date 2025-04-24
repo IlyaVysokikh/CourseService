@@ -50,30 +50,30 @@ type (
 	}
 
 	Usecase struct {
-		GetAllCourseUsecase  GetAllCourseUsecase
-		GetCourseUsecase     GetCourseUsecase
-		CreateCourseUsecase  CreateCourseUsecase
-		CloneCourseUsecase   CloneCourseUsecase
-		CreateModulesUsecase CreateModulesUsecase
-		GetModuleUsecase     GetModuleUsecase
-		GetTaskUsecase       GetTaskUseCase
-		DeleteCourseUsecase  DeleteCourseUsecase
-		UpdateCourseUsecase  UpdateCourseUsecase
+		GetAllCourseUseCase  GetAllCourseUsecase
+		GetCourseUseCase     GetCourseUsecase
+		CreateCourseUseCase  CreateCourseUsecase
+		CloneCourseUseCase   CloneCourseUsecase
+		CreateModulesUseCase CreateModulesUsecase
+		GetModuleUseCase     GetModuleUsecase
+		GetTaskUseCase       GetTaskUseCase
+		DeleteCourseUseCase  DeleteCourseUsecase
+		UpdateCourseUseCase  UpdateCourseUsecase
 		DeleteModuleUseCase  DeleteModuleUseCase
 	}
 )
 
 func NewUsecase(services *services.Service) *Usecase {
 	return &Usecase{
-		GetAllCourseUsecase:  NewGetAllCourseUsecase(services.CourseService),
-		GetCourseUsecase:     NewGetCourseUsecase(services.CourseService, services.ModuleService, services.TaskService),
-		CreateCourseUsecase:  NewCreateCourseUsecase(services.CourseService),
-		CloneCourseUsecase:   NewCloneCourseUsecase(services.CourseService),
-		CreateModulesUsecase: NewCreateModuleUsecase(services.ModuleService),
-		GetModuleUsecase:     NewGetModuleUsecase(services.ModuleService, services.TaskService, services.ModuleAttachmentService),
-		GetTaskUsecase:       NewGetTaskUseCase(services.TaskService),
-		DeleteCourseUsecase:  NewDeleteCourseUseCase(services.CourseService),
-		UpdateCourseUsecase:  NewUpdateCourseUsecase(services.CourseService),
+		GetAllCourseUseCase:  NewGetAllCourseUsecase(services.CourseService),
+		GetCourseUseCase:     NewGetCourseUsecase(services.CourseService, services.ModuleService, services.TaskService),
+		CreateCourseUseCase:  NewCreateCourseUsecase(services.CourseService),
+		CloneCourseUseCase:   NewCloneCourseUsecase(services.CourseService),
+		CreateModulesUseCase: NewCreateModuleUsecase(services.ModuleService),
+		GetModuleUseCase:     NewGetModuleUsecase(services.ModuleService, services.TaskService, services.ModuleAttachmentService),
+		GetTaskUseCase:       NewGetTaskUseCase(services.TaskService),
+		DeleteCourseUseCase:  NewDeleteCourseUseCase(services.CourseService),
+		UpdateCourseUseCase:  NewUpdateCourseUsecase(services.CourseService),
 		DeleteModuleUseCase:  NewDeleteModuleUseCase(services.ModuleService),
 	}
 }

@@ -2,6 +2,7 @@ package rest
 
 import (
 	ierrors "CourseService/pkg/errors"
+	"errors"
 
 	"log/slog"
 
@@ -17,13 +18,13 @@ func (h *Handler) GetTaskHandler(ctx *gin.Context) {
 		return
 	}
 
-	task, err := h.usecases.GetTaskUsecase.Handle(ctx, taskId)
+	task, err := h.useCases.GetTaskUseCase.Handle(ctx, taskId)
 	if err != nil {
-		if err == ierrors.ErrNotFound {
+		if errors.Is(err, ierrors.ErrNotFound) {
 			h.notFound(ctx, err)
 			return
 		}
-		
+
 		slog.Error("failed to get task", "error", err)
 		h.internalServerError(ctx, err)
 		return

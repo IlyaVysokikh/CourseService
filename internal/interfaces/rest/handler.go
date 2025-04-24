@@ -7,12 +7,12 @@ import (
 )
 
 type Handler struct {
-	usecases *usecase.Usecase
+	useCases *usecase.Usecase
 }
 
-func NewHandler(usecases *usecase.Usecase) *Handler {
+func NewHandler(useCases *usecase.Usecase) *Handler {
 	return &Handler{
-		usecases: usecases,
+		useCases: useCases,
 	}
 }
 
