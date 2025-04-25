@@ -47,4 +47,8 @@ type (
 	DeleteModuleUseCase interface {
 		Handle(ctx context.Context, id uuid.UUID) error
 	}
+
+	DeleteTaskUseCase interface {
+		Handle(ctx context.Context, id uuid.UUID) error
+	}
 )

@@ -30,6 +30,7 @@ type (
 		GetTasks(moduleId uuid.UUID) ([]models.Task, error)
 		GetTasksByModule(moduleId uuid.UUID) ([]models.Task, error)
 		GetTask(taskId uuid.UUID) (*models.Task, error)
+		DeleteTask(id uuid.UUID) error
 	}
 
 	ModuleAttachmentRepository interface {

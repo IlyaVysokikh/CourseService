@@ -14,13 +14,15 @@ import (
 
 type TasksHandler struct {
 	BaseHandler
-	GetTaskUseCase shared.GetTaskUseCase
+	GetTaskUseCase    shared.GetTaskUseCase
+	DeleteTaskUseCase shared.DeleteTaskUseCase
 }
 
 func NewTasksHandler(useCase *usecase.UseCase) *TasksHandler {
 	return &TasksHandler{
-		BaseHandler:    BaseHandler{},
-		GetTaskUseCase: useCase.GetTaskUseCase,
+		BaseHandler:       BaseHandler{},
+		GetTaskUseCase:    useCase.GetTaskUseCase,
+		DeleteTaskUseCase: useCase.DeleteTaskUseCase,
 	}
 }
 
@@ -45,4 +47,25 @@ func (h *TasksHandler) GetTaskHandler(ctx *gin.Context) {
 	}
 
 	h.ok(ctx, task)
+}
+
+func (h *TasksHandler) DeleteTaskHandler(ctx *gin.Context) {
+	taskId, err := uuid.Parse(ctx.Param("id"))
+	if err != nil {
+		slog.Error("failed to parse task id", "error", err)
+		h.badRequest(ctx, err)
+		return
+	}
+
+	if err := h.DeleteTaskUseCase.Handle(ctx, taskId); err != nil {
+		if errors.Is(err, ierrors.ErrNotFound) {
+			h.notFound(ctx, err)
+		}
+
+		h.internalServerError(ctx, err)
+		return
+	}
+
+	h.noContent(ctx)
+	return
 }

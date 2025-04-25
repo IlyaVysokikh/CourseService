@@ -81,3 +81,7 @@ func (t *TaskServiceImpl) GetTask(ctx context.Context, taskId uuid.UUID) (*dto.T
 	}, nil
 
 }
+
+func (t *TaskServiceImpl) DeleteTask(ctx context.Context, id uuid.UUID) error {
+	return t.repo.DeleteTask(id)
+}

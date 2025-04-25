@@ -30,6 +30,7 @@ type (
 		GetTaskCount(ctx context.Context, moduleId uuid.UUID) (int, error)
 		GetTasksByModule(ctx context.Context, moduleId uuid.UUID) ([]dto.Task, error)
 		GetTask(ctx context.Context, taskId uuid.UUID) (*dto.TaskExtended, error)
+		DeleteTask(ctx context.Context, id uuid.UUID) error
 	}
 
 	ModuleAttachmentService interface {

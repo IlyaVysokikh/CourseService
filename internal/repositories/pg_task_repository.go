@@ -64,3 +64,17 @@ func (t *TaskRepositoryImpl) GetTask(taskId uuid.UUID) (*models.Task, error) {
 
 	return &task, nil
 }
+
+func (t *TaskRepositoryImpl) DeleteTask(id uuid.UUID) error {
+	const query = `DELETE FROM t_task WHERE id = $1`
+	_, err := t.conn.Exec(query, id)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return ierrors.ErrNotFound
+		}
+
+		return ierrors.ErrInternal
+	}
+
+	return nil
+}
