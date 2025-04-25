@@ -7,46 +7,42 @@ import (
 )
 
 type Module struct {
-	Id uuid.UUID `json:"id"`
-	Name string `json:"name"`
-	DateStart string `json:"date_start"`
-	SequenceNumber int `json:"sequence_number"`
+	Id             uuid.UUID `json:"id"`
+	Name           string    `json:"name"`
+	DateStart      string    `json:"date_start"`
+	SequenceNumber int       `json:"sequence_number"`
 }
 
 type ModuleList struct {
-	Id uuid.UUID `json:"id"`
-	Name string `json:"name"`
-	DateStart string `json:"date_start"`
-	SequenceNumber int `json:"sequence_number"`
-	TaskCount int `json:"task_count"`
+	Id             uuid.UUID `json:"id"`
+	Name           string    `json:"name"`
+	DateStart      string    `json:"date_start"`
+	SequenceNumber int       `json:"sequence_number"`
+	TaskCount      int       `json:"task_count"`
 }
-
 
 type CreateModulesRequest struct {
-	Modules []CreateModule `json:"modules"`
+	CourseId uuid.UUID      `json:"course_id"`
+	Modules  []CreateModule `json:"modules"`
 }
-
 
 type CreateModule struct {
-	Id *uuid.UUID `json:"id"`
-	Name string `json:"name"`
-	DateStart string `json:"date_start"`
-	SequenceNumber int `json:"sequence_number"`
+	Id             *uuid.UUID `json:"id"`
+	Name           string     `json:"name"`
+	DateStart      string     `json:"date_start"`
+	SequenceNumber int        `json:"sequence_number"`
 }
 
-
-
 type CreateModulesResponse struct {
-
 }
 
 type GetModuleResponse struct {
-	Module GetModule `json:"module"`
-	Tasks []Task `json:"tasks"`
+	Module     GetModule                  `json:"module"`
+	Tasks      []Task                     `json:"tasks"`
 	Attachment []*models.ModuleAttachment `json:"attachment"`
 }
 
 type GetModule struct {
-	Id uuid.UUID `json:"id"`
-	Name string `json:"name"`
+	Id   uuid.UUID `json:"id"`
+	Name string    `json:"name"`
 }

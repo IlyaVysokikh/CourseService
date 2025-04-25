@@ -2,9 +2,10 @@ package repositories
 
 import (
 	"CourseService/internal/repositories/models"
-	"log/slog"
 	ierrors "CourseService/pkg/errors"
 	"database/sql"
+	"errors"
+	"log/slog"
 
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
@@ -14,7 +15,7 @@ type TaskRepositoryImpl struct {
 	conn *sqlx.DB
 }
 
-func NewTaskRepository (conn *sqlx.DB) TaskRepository {
+func NewTaskRepository(conn *sqlx.DB) TaskRepository {
 	return &TaskRepositoryImpl{
 		conn: conn,
 	}
@@ -25,7 +26,7 @@ func (t *TaskRepositoryImpl) GetTasks(moduleId uuid.UUID) ([]models.Task, error)
 	tasks := []models.Task{}
 	err := t.conn.Select(&tasks, query, moduleId)
 	if err != nil {
-		if err == sql.ErrNoRows {
+		if errors.Is(err, sql.ErrNoRows) {
 			slog.Warn("No tasks found for module", "moduleId", moduleId)
 			return nil, ierrors.ErrNotFound
 		}
@@ -53,7 +54,7 @@ func (t *TaskRepositoryImpl) GetTask(taskId uuid.UUID) (*models.Task, error) {
 	task := models.Task{}
 	err := t.conn.Get(&task, query, taskId)
 	if err != nil {
-		if err == sql.ErrNoRows {
+		if errors.Is(err, sql.ErrNoRows) {
 			slog.Warn("No task found", "taskId", taskId)
 			return nil, ierrors.ErrNotFound
 		}

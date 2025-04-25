@@ -1,9 +1,11 @@
-package usecase
+package task
 
 import (
 	"CourseService/internal/interfaces/rest/dto"
 	"CourseService/internal/services"
+	"CourseService/internal/usecase/shared"
 	ierrors "CourseService/pkg/errors"
+	"errors"
 
 	"context"
 
@@ -14,7 +16,7 @@ type GetTaskUseCaseImpl struct {
 	taskService services.TaskService
 }
 
-func NewGetTaskUseCase(taskService services.TaskService) *GetTaskUseCaseImpl {
+func NewGetTaskUseCase(taskService services.TaskService) shared.GetTaskUseCase {
 	return &GetTaskUseCaseImpl{
 		taskService: taskService,
 	}
@@ -23,11 +25,11 @@ func NewGetTaskUseCase(taskService services.TaskService) *GetTaskUseCaseImpl {
 func (g *GetTaskUseCaseImpl) Handle(ctx context.Context, taskId uuid.UUID) (*dto.TaskExtended, error) {
 	task, err := g.taskService.GetTask(ctx, taskId)
 	if err != nil {
-		if err == ierrors.ErrNotFound {
+		if errors.Is(err, ierrors.ErrNotFound) {
 			return nil, ierrors.New(ierrors.ErrNotFound, "task not found", err)
 		}
 
-		if err == ierrors.ErrInternal {
+		if errors.Is(err, ierrors.ErrInternal) {
 			return nil, ierrors.New(ierrors.ErrInternal, "failed to get task", err)
 		}
 		return nil, err

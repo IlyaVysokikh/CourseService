@@ -1,6 +1,8 @@
 package rest
 
 import (
+	"CourseService/internal/usecase"
+	"CourseService/internal/usecase/shared"
 	ierrors "CourseService/pkg/errors"
 	"errors"
 
@@ -10,7 +12,19 @@ import (
 	"github.com/google/uuid"
 )
 
-func (h *Handler) GetTaskHandler(ctx *gin.Context) {
+type TasksHandler struct {
+	BaseHandler
+	GetTaskUseCase shared.GetTaskUseCase
+}
+
+func NewTasksHandler(useCase *usecase.UseCase) *TasksHandler {
+	return &TasksHandler{
+		BaseHandler:    BaseHandler{},
+		GetTaskUseCase: useCase.GetTaskUseCase,
+	}
+}
+
+func (h *TasksHandler) GetTaskHandler(ctx *gin.Context) {
 	taskId, err := uuid.Parse(ctx.Param("taskId"))
 	if err != nil {
 		slog.Error("failed to parse task id", "error", err)
@@ -18,7 +32,7 @@ func (h *Handler) GetTaskHandler(ctx *gin.Context) {
 		return
 	}
 
-	task, err := h.useCases.GetTaskUseCase.Handle(ctx, taskId)
+	task, err := h.GetTaskUseCase.Handle(ctx, taskId)
 	if err != nil {
 		if errors.Is(err, ierrors.ErrNotFound) {
 			h.notFound(ctx, err)

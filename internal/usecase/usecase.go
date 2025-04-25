@@ -1,79 +1,37 @@
 package usecase
 
 import (
-	"CourseService/internal/interfaces/rest/dto"
 	"CourseService/internal/services"
-	"context"
-
-	"github.com/google/uuid"
+	"CourseService/internal/usecase/course"
+	"CourseService/internal/usecase/module"
+	"CourseService/internal/usecase/shared"
+	"CourseService/internal/usecase/task"
 )
 
-type (
-	GetAllCourseUsecase interface {
-		Handle(ctx context.Context, filter *dto.CourseFilter) ([]dto.CourseList, error)
-	}
+type UseCase struct {
+	GetAllCourseUseCase  shared.GetAllCourseUseCase
+	GetCourseUseCase     shared.GetCourseUseCase
+	CreateCourseUseCase  shared.CreateCourseUseCase
+	CloneCourseUseCase   shared.CloneCourseUseCase
+	CreateModulesUseCase shared.CreateModulesUseCase
+	GetModuleUseCase     shared.GetModuleUseCase
+	GetTaskUseCase       shared.GetTaskUseCase
+	DeleteCourseUseCase  shared.DeleteCourseUseCase
+	UpdateCourseUseCase  shared.UpdateCourseUseCase
+	DeleteModuleUseCase  shared.DeleteModuleUseCase
+}
 
-	GetCourseUsecase interface {
-		Handle(ctx context.Context, id uuid.UUID) (*dto.Course, error)
-	}
-
-	CreateCourseUsecase interface {
-		Handle(ctx context.Context, course *dto.CreateCourse) (dto.CreateCourseResponse, error)
-	}
-
-	CloneCourseUsecase interface {
-		Handle(ctx context.Context, course *dto.CloneCourseRequest) (dto.CreateCourseResponse, error)
-	}
-
-	CreateModulesUsecase interface {
-		Handle(ctx context.Context, courseID uuid.UUID, module *dto.CreateModulesRequest) error
-	}
-
-	GetModuleUsecase interface {
-		Handle(ctx context.Context, moduleID uuid.UUID) (dto.GetModuleResponse, error)
-	}
-
-	GetTaskUseCase interface {
-		Handle(ctx context.Context, taskId uuid.UUID) (*dto.TaskExtended, error)
-	}
-
-	DeleteCourseUsecase interface {
-		Handle(ctx context.Context, id uuid.UUID) error
-	}
-
-	UpdateCourseUsecase interface {
-		Handle(ctx context.Context, id uuid.UUID, request dto.UpdateCourseRequest) error
-	}
-
-	DeleteModuleUseCase interface {
-		Handle(ctx context.Context, id uuid.UUID) error
-	}
-
-	Usecase struct {
-		GetAllCourseUseCase  GetAllCourseUsecase
-		GetCourseUseCase     GetCourseUsecase
-		CreateCourseUseCase  CreateCourseUsecase
-		CloneCourseUseCase   CloneCourseUsecase
-		CreateModulesUseCase CreateModulesUsecase
-		GetModuleUseCase     GetModuleUsecase
-		GetTaskUseCase       GetTaskUseCase
-		DeleteCourseUseCase  DeleteCourseUsecase
-		UpdateCourseUseCase  UpdateCourseUsecase
-		DeleteModuleUseCase  DeleteModuleUseCase
-	}
-)
-
-func NewUsecase(services *services.Service) *Usecase {
-	return &Usecase{
-		GetAllCourseUseCase:  NewGetAllCourseUsecase(services.CourseService),
-		GetCourseUseCase:     NewGetCourseUsecase(services.CourseService, services.ModuleService, services.TaskService),
-		CreateCourseUseCase:  NewCreateCourseUsecase(services.CourseService),
-		CloneCourseUseCase:   NewCloneCourseUsecase(services.CourseService),
-		CreateModulesUseCase: NewCreateModuleUsecase(services.ModuleService),
-		GetModuleUseCase:     NewGetModuleUsecase(services.ModuleService, services.TaskService, services.ModuleAttachmentService),
-		GetTaskUseCase:       NewGetTaskUseCase(services.TaskService),
-		DeleteCourseUseCase:  NewDeleteCourseUseCase(services.CourseService),
-		UpdateCourseUseCase:  NewUpdateCourseUsecase(services.CourseService),
-		DeleteModuleUseCase:  NewDeleteModuleUseCase(services.ModuleService),
+func NewUseCase(services *services.Service) *UseCase {
+	return &UseCase{
+		GetAllCourseUseCase:  course.NewGetAllCourseUseCase(services.CourseService),
+		GetCourseUseCase:     course.NewGetCourseUseCase(services.CourseService, services.ModuleService, services.TaskService),
+		CreateCourseUseCase:  course.NewCreateCourseUseCase(services.CourseService),
+		CloneCourseUseCase:   course.NewCloneCourseUseCase(services.CourseService),
+		CreateModulesUseCase: module.NewCreateModuleUseCase(services.ModuleService),
+		GetModuleUseCase:     module.NewGetModuleUseCase(services.ModuleService, services.TaskService, services.ModuleAttachmentService),
+		GetTaskUseCase:       task.NewGetTaskUseCase(services.TaskService),
+		DeleteCourseUseCase:  course.NewDeleteCourseUseCase(services.CourseService),
+		UpdateCourseUseCase:  course.NewUpdateCourseUseCase(services.CourseService),
+		DeleteModuleUseCase:  module.NewDeleteModuleUseCase(services.ModuleService),
 	}
 }

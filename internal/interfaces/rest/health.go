@@ -1,11 +1,19 @@
 package rest
 
 import (
-	"net/http"
-
 	"github.com/gin-gonic/gin"
 )
 
-func (h *Handler) HealthCheck(ctx *gin.Context) {
-    ctx.String(http.StatusOK, "OK")
+type HealthHandler struct {
+	BaseHandler
+}
+
+func NewHealthHandler() *HealthHandler {
+	return &HealthHandler{
+		BaseHandler: BaseHandler{},
+	}
+}
+
+func (h *HealthHandler) HealthCheck(ctx *gin.Context) {
+	h.ok(ctx, "ok")
 }

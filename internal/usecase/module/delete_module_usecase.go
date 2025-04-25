@@ -1,7 +1,8 @@
-package usecase
+package module
 
 import (
 	"CourseService/internal/services"
+	"CourseService/internal/usecase/shared"
 	"context"
 	"github.com/google/uuid"
 )
@@ -10,7 +11,7 @@ type DeleteModuleUseCaseImpl struct {
 	moduleService services.ModuleService
 }
 
-func NewDeleteModuleUseCase(moduleService services.ModuleService) DeleteModuleUseCase {
+func NewDeleteModuleUseCase(moduleService services.ModuleService) shared.DeleteModuleUseCase {
 	return &DeleteModuleUseCaseImpl{
 		moduleService: moduleService,
 	}

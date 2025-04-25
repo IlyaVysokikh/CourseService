@@ -1,36 +1,34 @@
-package usecase
+package module
 
 import (
 	"CourseService/internal/interfaces/rest/dto"
 	"CourseService/internal/services"
+	"CourseService/internal/usecase/shared"
 	ierrors "CourseService/pkg/errors"
+	"errors"
 	"log/slog"
-
-	"github.com/google/uuid"
 
 	"context"
 )
 
-
-
-type CreateModulesUsecaseImpl struct {
+type CreateModulesUseCaseImpl struct {
 	moduleService services.ModuleService
 }
 
-func NewCreateModuleUsecase(moduleService services.ModuleService) CreateModulesUsecase {
-	return CreateModulesUsecaseImpl{
+func NewCreateModuleUseCase(moduleService services.ModuleService) shared.CreateModulesUseCase {
+	return CreateModulesUseCaseImpl{
 		moduleService: moduleService,
 	}
 }
 
-func (cmu CreateModulesUsecaseImpl) Handle(ctx context.Context, courseID uuid.UUID, module *dto.CreateModulesRequest) (error) {
-	err := cmu.moduleService.CreateModules(ctx, courseID, *module)
+func (cmu CreateModulesUseCaseImpl) Handle(ctx context.Context, module *dto.CreateModulesRequest) error {
+	err := cmu.moduleService.CreateModules(ctx, *module)
 	if err != nil {
-		if err == ierrors.ErrInternal {
+		if errors.Is(err, ierrors.ErrInternal) {
 			slog.Error("Error creating modules", "error", err)
 			return ierrors.New(ierrors.ErrInternal, "failed to create modules", err)
 		}
-		
+
 		slog.Error("Unexpected error creating modules", "error", err)
 		return err
 	}

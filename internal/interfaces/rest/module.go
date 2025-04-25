@@ -2,6 +2,8 @@ package rest
 
 import (
 	"CourseService/internal/interfaces/rest/dto"
+	"CourseService/internal/usecase"
+	"CourseService/internal/usecase/shared"
 	ierrors "CourseService/pkg/errors"
 
 	"errors"
@@ -10,8 +12,23 @@ import (
 	"log/slog"
 )
 
-func (h *Handler) CreateModulesHandler(ctx *gin.Context) {
-	courseID := ctx.Param("id")
+type ModulesHandler struct {
+	BaseHandler
+	CreateModulesUseCase shared.CreateModulesUseCase
+	GetModuleUseCase     shared.GetModuleUseCase
+	DeleteModuleUseCase  shared.DeleteModuleUseCase
+}
+
+func NewModulesHandler(useCase *usecase.UseCase) *ModulesHandler {
+	return &ModulesHandler{
+		BaseHandler:          BaseHandler{},
+		CreateModulesUseCase: useCase.CreateModulesUseCase,
+		GetModuleUseCase:     useCase.GetModuleUseCase,
+		DeleteModuleUseCase:  useCase.DeleteModuleUseCase,
+	}
+}
+
+func (h *ModulesHandler) CreateModulesHandler(ctx *gin.Context) {
 	var module dto.CreateModulesRequest
 
 	if err := ctx.ShouldBindJSON(&module); err != nil {
@@ -20,23 +37,21 @@ func (h *Handler) CreateModulesHandler(ctx *gin.Context) {
 		return
 	}
 
-	courseUuid, err := uuid.Parse(courseID)
-	if err != nil {
-		slog.Error("Error parsing course ID", "error", err)
-		h.badRequest(ctx, err)
-		return
-	}
-	err = h.useCases.CreateModulesUseCase.Handle(ctx, courseUuid, &module)
-	if err != nil {
+	if err := h.CreateModulesUseCase.Handle(ctx, &module); err != nil {
+		if errors.Is(err, ierrors.ErrNotFound) {
+			slog.Error("Course not found", "err", err)
+			return
+		}
+
 		slog.Error("Error creating modules", "error", err)
-		ctx.JSON(500, gin.H{"error": "Internal server error"})
+		h.internalServerError(ctx, err)
 		return
 	}
 
 	h.created(ctx, "Modules created successfully")
 }
 
-func (h *Handler) GetModuleHandler(ctx *gin.Context) {
+func (h *ModulesHandler) GetModuleHandler(ctx *gin.Context) {
 	moduleID := ctx.Param("id")
 
 	moduleUuid, err := uuid.Parse(moduleID)
@@ -46,7 +61,7 @@ func (h *Handler) GetModuleHandler(ctx *gin.Context) {
 		return
 	}
 
-	module, err := h.useCases.GetModuleUseCase.Handle(ctx, moduleUuid)
+	module, err := h.GetModuleUseCase.Handle(ctx, moduleUuid)
 	if err != nil {
 		if errors.Is(err, ierrors.ErrNotFound) {
 			slog.Warn("Module not found", "moduleID", moduleUuid)
@@ -61,7 +76,7 @@ func (h *Handler) GetModuleHandler(ctx *gin.Context) {
 	h.ok(ctx, module)
 }
 
-func (h *Handler) DeleteModuleHandler(ctx *gin.Context) {
+func (h *ModulesHandler) DeleteModuleHandler(ctx *gin.Context) {
 	moduleID := ctx.Param("id")
 	moduleUuid, err := uuid.Parse(moduleID)
 	if err != nil {
@@ -70,7 +85,7 @@ func (h *Handler) DeleteModuleHandler(ctx *gin.Context) {
 		return
 	}
 
-	if err = h.useCases.DeleteModuleUseCase.Handle(ctx, moduleUuid); err != nil {
+	if err = h.DeleteModuleUseCase.Handle(ctx, moduleUuid); err != nil {
 		if errors.Is(err, ierrors.ErrNotFound) {
 			slog.Warn("Module not found", "moduleID", moduleUuid)
 			h.notFound(ctx, err)

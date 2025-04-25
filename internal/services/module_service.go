@@ -46,7 +46,7 @@ func (ms ModuleServiceImpl) GetModulesByCourse(ctx context.Context, courseID uui
 	return moduleList, nil
 }
 
-func (ms ModuleServiceImpl) CreateModules(ctx context.Context, courseID uuid.UUID, modules dto.CreateModulesRequest) error {
+func (ms ModuleServiceImpl) CreateModules(ctx context.Context, modules dto.CreateModulesRequest) error {
 	var newModules []dto.CreateModule
 	var incomingModules []dto.CreateModule
 
@@ -57,13 +57,13 @@ func (ms ModuleServiceImpl) CreateModules(ctx context.Context, courseID uuid.UUI
 			newModules = append(newModules, modules.Modules[i])
 		}
 	}
-
-	if err := ms.repo.UpdateModules(courseID, newModules); err != nil {
+	courseId := modules.CourseId
+	if err := ms.repo.UpdateModules(courseId, newModules); err != nil {
 		slog.Error("error updating modules", slog.Any("err", err))
 		return ierrors.New(ierrors.ErrInternal, "failed to update modules", err)
 	}
 
-	if err := ms.repo.CreateModules(courseID, incomingModules); err != nil {
+	if err := ms.repo.CreateModules(courseId, incomingModules); err != nil {
 		slog.Error("error creating modules", slog.Any("err", err))
 		return ierrors.New(ierrors.ErrInternal, "failed to create modules", err)
 	}

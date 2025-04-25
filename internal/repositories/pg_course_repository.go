@@ -67,7 +67,7 @@ func (cr *PgCourseRepository) GetCourse(id uuid.UUID) (*models.Course, error) {
 	course := &models.Course{}
 	err := cr.conn.Get(course, query, id)
 	if err != nil {
-		if err == sql.ErrNoRows {
+		if errors.Is(err, sql.ErrNoRows) {
 			slog.Warn("Course not found", "query", query, "error", err)
 			return nil, ierrors.ErrNotFound
 		}

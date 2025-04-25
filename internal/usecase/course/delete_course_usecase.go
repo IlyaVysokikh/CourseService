@@ -1,7 +1,8 @@
-package usecase
+package course
 
 import (
 	"CourseService/internal/services"
+	"CourseService/internal/usecase/shared"
 	ierrors "CourseService/pkg/errors"
 	"context"
 	"errors"
@@ -12,7 +13,7 @@ type DeleteCourseUseCaseImpl struct {
 	courseService services.CourseService
 }
 
-func NewDeleteCourseUseCase(courseService services.CourseService) DeleteCourseUsecase {
+func NewDeleteCourseUseCase(courseService services.CourseService) shared.DeleteCourseUseCase {
 	return &DeleteCourseUseCaseImpl{
 		courseService: courseService,
 	}

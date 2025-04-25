@@ -1,32 +1,36 @@
-package usecase
+package module
 
 import (
 	"CourseService/internal/interfaces/rest/dto"
 	"CourseService/internal/services"
+	"CourseService/internal/usecase/shared"
 	ierrors "CourseService/pkg/errors"
 
 	"context"
-	"log/slog"
 	"errors"
+	"log/slog"
 
 	"github.com/google/uuid"
 )
 
-type GetModuleUsecaseImpl struct {
-	moduleService services.ModuleService
-	taskService services.TaskService
-	moduleAttachmentService services.ModuleAttachmentService 
+type GetModuleUseCaseImpl struct {
+	moduleService           services.ModuleService
+	taskService             services.TaskService
+	moduleAttachmentService services.ModuleAttachmentService
 }
 
-func NewGetModuleUsecase(moduleService services.ModuleService, taskService services.TaskService, moduleAttachemtService services.ModuleAttachmentService) GetModuleUsecase {
-	return GetModuleUsecaseImpl{
-		moduleService: moduleService,
-		taskService: taskService,
-		moduleAttachmentService: moduleAttachemtService,
+func NewGetModuleUseCase(
+	moduleService services.ModuleService,
+	taskService services.TaskService,
+	moduleAttachmentService services.ModuleAttachmentService) shared.GetModuleUseCase {
+	return GetModuleUseCaseImpl{
+		moduleService:           moduleService,
+		taskService:             taskService,
+		moduleAttachmentService: moduleAttachmentService,
 	}
 }
 
-func (gmu GetModuleUsecaseImpl) Handle(ctx context.Context, moduleID uuid.UUID) (dto.GetModuleResponse, error) {
+func (gmu GetModuleUseCaseImpl) Handle(ctx context.Context, moduleID uuid.UUID) (dto.GetModuleResponse, error) {
 	module, err := gmu.moduleService.GetModule(ctx, moduleID)
 	if err != nil {
 		if errors.Is(err, ierrors.ErrNotFound) {
@@ -49,10 +53,9 @@ func (gmu GetModuleUsecaseImpl) Handle(ctx context.Context, moduleID uuid.UUID) 
 		return dto.GetModuleResponse{}, err
 	}
 
-
 	return dto.GetModuleResponse{
-		Module: module,
-		Tasks:  tasks,
+		Module:     module,
+		Tasks:      tasks,
 		Attachment: attachments,
 	}, nil
 }

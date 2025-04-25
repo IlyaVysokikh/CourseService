@@ -1,45 +1,46 @@
-package usecase
+package course
 
 import (
 	"CourseService/internal/interfaces/rest/dto"
 	"CourseService/internal/services"
-	"context"
-	"log/slog"
+	"CourseService/internal/usecase/shared"
 	ierrors "CourseService/pkg/errors"
-
+	"context"
+	"errors"
+	"log/slog"
 
 	"github.com/google/uuid"
 )
 
-type GetCourseUsecaseImpl struct {
+type GetCourseUseCaseImpl struct {
 	cs services.CourseService
 	ms services.ModuleService
 	ts services.TaskService
 }
 
-func NewGetCourseUsecase(cs services.CourseService, ms services.ModuleService, ts services.TaskService) GetCourseUsecase {
-	return &GetCourseUsecaseImpl{
+func NewGetCourseUseCase(cs services.CourseService, ms services.ModuleService, ts services.TaskService) shared.GetCourseUseCase {
+	return &GetCourseUseCaseImpl{
 		cs: cs,
 		ms: ms,
 		ts: ts,
 	}
 }
 
-func (gs *GetCourseUsecaseImpl) Handle(ctx context.Context, id uuid.UUID) (*dto.Course, error) {
+func (gs *GetCourseUseCaseImpl) Handle(ctx context.Context, id uuid.UUID) (*dto.Course, error) {
 
 	course, err := gs.cs.GetCourse(ctx, id)
 	if err != nil {
-		if err == ierrors.ErrNotFound {
+		if errors.Is(err, ierrors.ErrNotFound) {
 			slog.Warn("course not found", "courseID", id)
 			return nil, ierrors.New(ierrors.ErrNotFound, "course not found", err)
 		}
-		
-		if err == ierrors.ErrInvalidInput {
+
+		if errors.Is(err, ierrors.ErrInvalidInput) {
 			slog.Warn("invalid input maybe dates", "courseID", id)
 			return nil, ierrors.New(ierrors.ErrInvalidInput, "invalid input", err)
 		}
 
-		if err == ierrors.ErrInternal {
+		if errors.Is(err, ierrors.ErrInternal) {
 			slog.Error("error getting course", "error", err)
 			return nil, ierrors.New(ierrors.ErrInternal, "failed to get course", err)
 		}
@@ -69,7 +70,7 @@ func (gs *GetCourseUsecaseImpl) Handle(ctx context.Context, id uuid.UUID) (*dto.
 	for i := range course.Modules {
 		tasksCount, err := gs.ts.GetTaskCount(ctx, course.Modules[i].Id)
 		if err != nil {
-			if err == ierrors.ErrInternal {
+			if errors.Is(err, ierrors.ErrInternal) {
 				slog.Warn("tasks not found", "moduleID", course.Modules[i].Id)
 				course.Modules[i].TaskCount = 0
 				continue
@@ -77,7 +78,7 @@ func (gs *GetCourseUsecaseImpl) Handle(ctx context.Context, id uuid.UUID) (*dto.
 			slog.Error("error getting task count", "error", err)
 			return nil, err
 		}
-		course.Modules[i].TaskCount = tasksCount  
+		course.Modules[i].TaskCount = tasksCount
 	}
 
 	return course, nil

@@ -1,30 +1,30 @@
-package usecase
+package course
 
 import (
 	"CourseService/internal/interfaces/rest/dto"
 	"CourseService/internal/services"
+	"CourseService/internal/usecase/shared"
 	ierrors "CourseService/pkg/errors"
+	"errors"
 
 	"context"
 	"log/slog"
-
 )
 
-
-type CloneCourseUsecaseImpl struct {
+type CloneCourseUseCaseImpl struct {
 	cs services.CourseService
 }
 
-func NewCloneCourseUsecase(cs services.CourseService) CloneCourseUsecase {
-	return &CloneCourseUsecaseImpl{
+func NewCloneCourseUseCase(cs services.CourseService) shared.CloneCourseUseCase {
+	return &CloneCourseUseCaseImpl{
 		cs: cs,
 	}
 }
 
-func (u *CloneCourseUsecaseImpl) Handle(ctx context.Context, course *dto.CloneCourseRequest) (dto.CreateCourseResponse, error) {
+func (u *CloneCourseUseCaseImpl) Handle(ctx context.Context, course *dto.CloneCourseRequest) (dto.CreateCourseResponse, error) {
 	newCourseID, err := u.cs.CloneCourse(ctx, course)
 	if err != nil {
-		if err == ierrors.ErrInternal {
+		if errors.Is(err, ierrors.ErrInternal) {
 			slog.Error("Error cloning course", "error", err)
 			return dto.CreateCourseResponse{}, ierrors.New(ierrors.ErrInternal, "failed to clone course", err)
 		}

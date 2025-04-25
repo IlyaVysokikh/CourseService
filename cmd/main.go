@@ -1,6 +1,7 @@
 package main
 
 import (
+	"CourseService/pkg/postgresql"
 	"io"
 	"log"
 	"log/slog"
@@ -16,45 +17,45 @@ import (
 )
 
 func main() {
-	cfg, err := cfg.MustLoad()
+	c, err := cfg.MustLoad()
 	if err != nil {
 		log.Fatalf("Failed to load config: %v", err)
 	}
 
-	logger := configureLogger(cfg.Logger)
+	logger := configureLogger(c.Logger)
 
-	conn, err := repositories.NewPostgresConnection(cfg.DB_CONNECTION)
+	conn, err := postgresql.NewPostgresConnection(c.DB_CONNECTION)
 	if err != nil {
 		logger.Error("Failed to connect to database", "error", err)
 		panic("Failed to connect to database")
 	}
 
-	repositories := repositories.NewRepository(conn)
+	repos := repositories.NewRepository(conn)
 
-	services := services.NewService(repositories)
+	svc := services.NewService(repos)
 
-	usecase := usecase.NewUsecase(services)
+	useCases := usecase.NewUseCase(svc)
 
-	h := rest.NewHandler(usecase)
+	h := rest.NewHandler(useCases)
 
 	router := gin.Default()
 
 	configureRoutes(router, h)
 
-	if err := router.Run(":" + cfg.APP_PORT); err != nil {
+	if err := router.Run(":" + c.APP_PORT); err != nil {
 		logger.Error("Failed to start server", "error", err)
 		return
 	}
-	logger.Info("Application started successfully", "port", cfg.APP_PORT)
+	logger.Info("Application started successfully", "port", c.APP_PORT)
 }
 
-func configureLogger(cfg cfg.LoggerConfig) *slog.Logger {
+func configureLogger(c cfg.LoggerConfig) *slog.Logger {
 	var writers []io.Writer
 
 	writers = append(writers, os.Stdout)
 
-	if cfg.FileOutput != "" {
-		file, err := os.OpenFile(cfg.FileOutput, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	if c.FileOutput != "" {
+		file, err := os.OpenFile(c.FileOutput, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 		if err != nil {
 			panic("failed to open log file: " + err.Error())
 		}
@@ -67,7 +68,7 @@ func configureLogger(cfg cfg.LoggerConfig) *slog.Logger {
 		AddSource: true,
 	}
 
-	switch cfg.Level {
+	switch c.Level {
 	case "debug":
 		opts.Level = slog.LevelDebug
 	case "info":
@@ -82,7 +83,7 @@ func configureLogger(cfg cfg.LoggerConfig) *slog.Logger {
 	}
 
 	var handler slog.Handler
-	switch cfg.Format {
+	switch c.Format {
 	case "json":
 		handler = slog.NewJSONHandler(multiWriter, opts)
 	default:
@@ -96,18 +97,30 @@ func configureLogger(cfg cfg.LoggerConfig) *slog.Logger {
 }
 
 func configureRoutes(router *gin.Engine, h *rest.Handler) {
-	router.GET("/health", h.HealthCheck)
+	coursesRouter := router.Group("/courses")
+	{
+		coursesRouter.GET("", h.CoursesHandler.GetAllCoursesHandler)
+		coursesRouter.GET("/:id", h.CoursesHandler.GetCourseHandler)
+		coursesRouter.DELETE("/:id", h.CoursesHandler.DeleteCourseHandler)
+		coursesRouter.POST("", h.CoursesHandler.CreateCourseHandler)
+		coursesRouter.PATCH("/:id", h.CoursesHandler.UpdateCourseHandler)
+		coursesRouter.POST("/:id/clone", h.CoursesHandler.CloneCourseHandler)
+	}
 
-	router.GET("/courses", h.GetAllCoursesHandler)
-	router.GET("/courses/:id", h.GetCourseHandler)
-	router.DELETE("/courses/:id", h.DeleteCourseHandler)
-	router.POST("/courses", h.CreateCourseHandler)
-	router.PATCH("/courses/:id", h.UpdateCourseHandler)
-	router.POST("/courses/:id/clone", h.CloneCourseHandler)
+	healthCheckRouter := router.Group("/health")
+	{
+		healthCheckRouter.GET("", h.HealthHandler.HealthCheck)
+	}
 
-	router.POST("/courses/:id/modules", h.CreateModulesHandler)
-	router.GET("/modules/:id", h.GetModuleHandler)
-	router.DELETE("/modules/:id", h.DeleteModuleHandler)
+	modulesRouter := router.Group("/modules")
+	{
+		modulesRouter.POST("/modules", h.ModulesHandler.CreateModulesHandler)
+		modulesRouter.GET("/:id", h.ModulesHandler.GetModuleHandler)
+		modulesRouter.DELETE("/:id", h.ModulesHandler.DeleteModuleHandler)
+	}
 
-	router.GET("/tasks/:id", h.GetTaskHandler)
+	tasksRouter := router.Group("/tasks")
+	{
+		tasksRouter.GET("/:id", h.TasksHandler.GetTaskHandler)
+	}
 }

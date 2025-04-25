@@ -1,8 +1,9 @@
-package usecase
+package course
 
 import (
 	"CourseService/internal/interfaces/rest/dto"
 	"CourseService/internal/services"
+	"CourseService/internal/usecase/shared"
 	ierrors "CourseService/pkg/errors"
 	"context"
 	"errors"
@@ -14,7 +15,7 @@ type UpdateCourseUseCaseImpl struct {
 	courseService services.CourseService
 }
 
-func NewUpdateCourseUsecase(courseService services.CourseService) UpdateCourseUsecase {
+func NewUpdateCourseUseCase(courseService services.CourseService) shared.UpdateCourseUseCase {
 	return &UpdateCourseUseCaseImpl{
 		courseService: courseService,
 	}

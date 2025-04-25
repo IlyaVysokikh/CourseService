@@ -1,10 +1,9 @@
-package repositories
+package postgresql
 
 import (
-	"log/slog"
-	"github.com/jmoiron/sqlx"
 	_ "github.com/jackc/pgx/v4/stdlib"
-
+	"github.com/jmoiron/sqlx"
+	"log/slog"
 )
 
 func NewPostgresConnection(connectionString string) (*sqlx.DB, error) {
