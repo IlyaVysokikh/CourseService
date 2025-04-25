@@ -46,3 +46,15 @@ type GetModule struct {
 	Id   uuid.UUID `json:"id"`
 	Name string    `json:"name"`
 }
+
+type CreateModuleAttachmentRequest struct {
+	FileName string `json:"file_name"`
+	Bucket   string `json:"bucket"`
+	Visible  bool   `json:"visible"`
+}
+
+type CreateModuleAttachmentResponse struct {
+	Success bool                     `json:"status"`
+	Message string                   `json:"message"`
+	Data    *models.ModuleAttachment `json:"data,omitempty"`
+}

@@ -51,4 +51,8 @@ type (
 	DeleteTaskUseCase interface {
 		Handle(ctx context.Context, id uuid.UUID) error
 	}
+
+	CreateModuleAttachmentUseCase interface {
+		Handle(ctx context.Context, moduleId uuid.UUID, request dto.CreateModuleAttachmentRequest) (dto.CreateModuleAttachmentResponse, error)
+	}
 )

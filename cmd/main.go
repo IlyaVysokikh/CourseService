@@ -114,9 +114,10 @@ func configureRoutes(router *gin.Engine, h *rest.Handler) {
 
 	modulesRouter := router.Group("/modules")
 	{
-		modulesRouter.POST("/modules", h.ModulesHandler.CreateModulesHandler)
+		modulesRouter.POST("", h.ModulesHandler.CreateModulesHandler)
 		modulesRouter.GET("/:id", h.ModulesHandler.GetModuleHandler)
 		modulesRouter.DELETE("/:id", h.ModulesHandler.DeleteModuleHandler)
+		modulesRouter.POST("/:id", h.ModulesHandler.CreateAttachment)
 	}
 
 	tasksRouter := router.Group("/tasks")

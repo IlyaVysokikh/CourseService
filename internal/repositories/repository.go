@@ -3,6 +3,7 @@ package repositories
 import (
 	"CourseService/internal/interfaces/rest/dto"
 	"CourseService/internal/repositories/models"
+	"context"
 
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
@@ -35,6 +36,7 @@ type (
 
 	ModuleAttachmentRepository interface {
 		GetAllByModule(moduleId uuid.UUID) ([]*models.ModuleAttachment, error)
+		Create(ctx context.Context, moduleId uuid.UUID, req dto.CreateModuleAttachmentRequest) (*models.ModuleAttachment, error)
 	}
 
 	Repository struct {

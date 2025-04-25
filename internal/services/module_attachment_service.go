@@ -1,6 +1,7 @@
 package services
 
 import (
+	"CourseService/internal/interfaces/rest/dto"
 	"CourseService/internal/repositories"
 	"CourseService/internal/repositories/models"
 	"context"
@@ -11,7 +12,6 @@ import (
 type ModuleAttachmentServiceImpl struct {
 	ModuleAttachmentRepository repositories.ModuleAttachmentRepository
 }
-
 
 func NewModuleAttachmentService(moduleAttachmentRepository repositories.ModuleAttachmentRepository) *ModuleAttachmentServiceImpl {
 	return &ModuleAttachmentServiceImpl{
@@ -33,4 +33,9 @@ func (s *ModuleAttachmentServiceImpl) GetAllByModule(ctx context.Context, module
 	}
 
 	return visibleAttachments, nil
+}
+
+func (s *ModuleAttachmentServiceImpl) CreateAttachment(
+	ctx context.Context, moduleId uuid.UUID, attachment dto.CreateModuleAttachmentRequest) (*models.ModuleAttachment, error) {
+	return s.ModuleAttachmentRepository.Create(ctx, moduleId, attachment)
 }

@@ -35,6 +35,7 @@ type (
 
 	ModuleAttachmentService interface {
 		GetAllByModule(ctx context.Context, moduleId uuid.UUID) ([]*models.ModuleAttachment, error)
+		CreateAttachment(ctx context.Context, moduleId uuid.UUID, data dto.CreateModuleAttachmentRequest) (*models.ModuleAttachment, error)
 	}
 
 	Service struct {

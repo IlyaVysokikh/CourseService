@@ -14,17 +14,19 @@ import (
 
 type ModulesHandler struct {
 	BaseHandler
-	CreateModulesUseCase shared.CreateModulesUseCase
-	GetModuleUseCase     shared.GetModuleUseCase
-	DeleteModuleUseCase  shared.DeleteModuleUseCase
+	CreateModulesUseCase          shared.CreateModulesUseCase
+	GetModuleUseCase              shared.GetModuleUseCase
+	DeleteModuleUseCase           shared.DeleteModuleUseCase
+	CreateModuleAttachmentUseCase shared.CreateModuleAttachmentUseCase
 }
 
 func NewModulesHandler(useCase *usecase.UseCase) *ModulesHandler {
 	return &ModulesHandler{
-		BaseHandler:          BaseHandler{},
-		CreateModulesUseCase: useCase.CreateModulesUseCase,
-		GetModuleUseCase:     useCase.GetModuleUseCase,
-		DeleteModuleUseCase:  useCase.DeleteModuleUseCase,
+		BaseHandler:                   BaseHandler{},
+		CreateModulesUseCase:          useCase.CreateModulesUseCase,
+		GetModuleUseCase:              useCase.GetModuleUseCase,
+		DeleteModuleUseCase:           useCase.DeleteModuleUseCase,
+		CreateModuleAttachmentUseCase: useCase.CreateModuleAttachment,
 	}
 }
 
@@ -99,4 +101,34 @@ func (h *ModulesHandler) DeleteModuleHandler(ctx *gin.Context) {
 
 	h.noContent(ctx)
 	return
+}
+
+func (h *ModulesHandler) CreateAttachment(ctx *gin.Context) {
+	//dto.CreateModuleAttachmentResponse, error)
+	moduleId, err := uuid.Parse(ctx.Param("id"))
+	if err != nil {
+		slog.Error("Error parsing module ID", "error", err)
+		h.badRequest(ctx, err)
+	}
+
+	var request dto.CreateModuleAttachmentRequest
+	if err := ctx.ShouldBindJSON(&request); err != nil {
+		slog.Error("Error binding JSON", "error", err)
+		h.badRequest(ctx, err)
+	}
+
+	response, err := h.CreateModuleAttachmentUseCase.Handle(ctx, moduleId, request)
+	if err != nil {
+		if errors.Is(err, ierrors.ErrNotFound) {
+			slog.Warn("Module not found", "moduleID", moduleId)
+			h.notFound(ctx, err)
+		}
+
+		slog.Error("Error creating module", "moduleID", moduleId, "error", err)
+		h.internalServerError(ctx, err)
+	}
+
+	h.created(ctx, response)
+	return
+
 }
