@@ -123,5 +123,17 @@ func configureRoutes(router *gin.Engine, h *rest.Handler) {
 	tasksRouter := router.Group("/tasks")
 	{
 		tasksRouter.GET("/:id", h.TasksHandler.GetTaskHandler)
+		tasksRouter.DELETE("/:id", h.TasksHandler.DeleteTaskHandler)
+		tasksRouter.PATCH("/:id")
+		tasksRouter.POST("")
+		tasksRouter.GET("/:id/test-data", h.TestDataHandler.GetAllTestData)
+	}
+
+	testDataRouter := router.Group("/programming")
+	{
+		testDataRouter.GET("/:id", h.TestDataHandler.GetTestData)
+		testDataRouter.DELETE("/:id", h.TestDataHandler.DeleteTestData)
+		testDataRouter.PATCH("/:id", h.TestDataHandler.UpdateTestData)
+		testDataRouter.POST("", h.TestDataHandler.CreateTestData)
 	}
 }

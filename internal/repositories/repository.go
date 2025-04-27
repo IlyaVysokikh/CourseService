@@ -4,7 +4,6 @@ import (
 	"CourseService/internal/interfaces/rest/dto"
 	"CourseService/internal/repositories/models"
 	"context"
-
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
 )
@@ -39,11 +38,20 @@ type (
 		Create(ctx context.Context, moduleId uuid.UUID, req dto.CreateModuleAttachmentRequest) (*models.ModuleAttachment, error)
 	}
 
+	TestDataRepository interface {
+		GetAll(taskId uuid.UUID) ([]models.ProgrammingTestData, error)
+		Get(id uuid.UUID) (models.ProgrammingTestData, error)
+		Create(ctx context.Context, request dto.CreateTestDataRequest) (uuid.UUID, error)
+		Update(ctx context.Context, id uuid.UUID, request dto.UpdateTestDataRequest) error
+		Delete(id uuid.UUID) error
+	}
+
 	Repository struct {
 		CourseRepository           CourseRepository
 		ModuleRepository           ModuleRepository
 		TaskRepository             TaskRepository
 		ModuleAttachmentRepository ModuleAttachmentRepository
+		TestDataRepository         TestDataRepository
 	}
 )
 
@@ -53,5 +61,6 @@ func NewRepository(conn *sqlx.DB) *Repository {
 		ModuleRepository:           NewModuleRepositoryImpl(conn),
 		TaskRepository:             NewTaskRepository(conn),
 		ModuleAttachmentRepository: NewModuleAttachmentRepository(conn),
+		TestDataRepository:         NewTestDataRepository(conn),
 	}
 }

@@ -6,6 +6,7 @@ import (
 	"CourseService/internal/usecase/module"
 	"CourseService/internal/usecase/shared"
 	"CourseService/internal/usecase/task"
+	"CourseService/internal/usecase/test_data"
 )
 
 type UseCase struct {
@@ -21,6 +22,12 @@ type UseCase struct {
 	DeleteModuleUseCase    shared.DeleteModuleUseCase
 	DeleteTaskUseCase      shared.DeleteTaskUseCase
 	CreateModuleAttachment shared.CreateModuleAttachmentUseCase
+
+	CreateTestDataUseCase shared.CreateTestDataUseCase
+	DeleteTestDataUseCase shared.DeleteTestDataUseCase
+	GetAllTestDataUseCase shared.GetAllTestDataUseCase
+	GetTestDataUseCasa    shared.GetTestDataUseCase
+	UpdateTestDataUseCase shared.UpdateTestDataUseCase
 }
 
 func NewUseCase(services *services.Service) *UseCase {
@@ -39,5 +46,11 @@ func NewUseCase(services *services.Service) *UseCase {
 
 		GetTaskUseCase:    task.NewGetTaskUseCase(services.TaskService),
 		DeleteTaskUseCase: task.NewDeleteTaskUseCase(services.TaskService),
+
+		CreateTestDataUseCase: test_data.NewCreateTestDataUseCase(services.TestDataService),
+		DeleteTestDataUseCase: test_data.NewDeleteTestDataUseCase(services.TestDataService),
+		GetAllTestDataUseCase: test_data.NewGetAllTestDataUseCase(services.TestDataService),
+		GetTestDataUseCasa:    test_data.NewGetTestDataUseCase(services.TestDataService),
+		UpdateTestDataUseCase: test_data.NewUpdateTestDataUseCase(services.TestDataService),
 	}
 }

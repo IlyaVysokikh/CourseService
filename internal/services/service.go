@@ -38,11 +38,20 @@ type (
 		CreateAttachment(ctx context.Context, moduleId uuid.UUID, data dto.CreateModuleAttachmentRequest) (*models.ModuleAttachment, error)
 	}
 
+	TestDataService interface {
+		GetAll(ctx context.Context, taskId uuid.UUID) ([]dto.TestDataResponse, error)
+		Get(ctx context.Context, id uuid.UUID) (dto.TestDataResponse, error)
+		Create(ctx context.Context, request dto.CreateTestDataRequest) (uuid.UUID, error)
+		Update(ctx context.Context, id uuid.UUID, request dto.UpdateTestDataRequest) error
+		Delete(ctx context.Context, id uuid.UUID) error
+	}
+
 	Service struct {
 		CourseService           CourseService
 		ModuleService           ModuleService
 		TaskService             TaskService
 		ModuleAttachmentService ModuleAttachmentService
+		TestDataService         TestDataService
 	}
 )
 
@@ -52,5 +61,6 @@ func NewService(repos *repositories.Repository) *Service {
 		ModuleService:           NewModuleService(repos.ModuleRepository),
 		TaskService:             NewTaskService(repos.TaskRepository),
 		ModuleAttachmentService: NewModuleAttachmentService(repos.ModuleAttachmentRepository),
+		TestDataService:         NewTestDataService(repos.TestDataRepository),
 	}
 }

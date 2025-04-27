@@ -7,18 +7,20 @@ import (
 )
 
 type Handler struct {
-	CoursesHandler *CoursesHandler
-	ModulesHandler *ModulesHandler
-	TasksHandler   *TasksHandler
-	HealthHandler  *HealthHandler
+	CoursesHandler  *CoursesHandler
+	ModulesHandler  *ModulesHandler
+	TasksHandler    *TasksHandler
+	HealthHandler   *HealthHandler
+	TestDataHandler *TestDataHandler
 }
 
 func NewHandler(useCases *usecase.UseCase) *Handler {
 	return &Handler{
-		CoursesHandler: NewCoursesHandler(useCases),
-		ModulesHandler: NewModulesHandler(useCases),
-		TasksHandler:   NewTasksHandler(useCases),
-		HealthHandler:  NewHealthHandler(),
+		CoursesHandler:  NewCoursesHandler(useCases),
+		ModulesHandler:  NewModulesHandler(useCases),
+		TasksHandler:    NewTasksHandler(useCases),
+		HealthHandler:   NewHealthHandler(),
+		TestDataHandler: NewTestDataHandler(useCases),
 	}
 }
 

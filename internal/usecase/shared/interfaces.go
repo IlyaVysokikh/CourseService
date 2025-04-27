@@ -55,4 +55,24 @@ type (
 	CreateModuleAttachmentUseCase interface {
 		Handle(ctx context.Context, moduleId uuid.UUID, request dto.CreateModuleAttachmentRequest) (dto.CreateModuleAttachmentResponse, error)
 	}
+
+	GetAllTestDataUseCase interface {
+		Handle(ctx context.Context, taskId uuid.UUID) ([]dto.TestDataResponse, error)
+	}
+
+	GetTestDataUseCase interface {
+		Handle(ctx context.Context, id uuid.UUID) (dto.TestDataResponse, error)
+	}
+
+	CreateTestDataUseCase interface {
+		Handle(ctx context.Context, request dto.CreateTestDataRequest) (uuid.UUID, error)
+	}
+
+	UpdateTestDataUseCase interface {
+		Handle(ctx context.Context, id uuid.UUID, request dto.UpdateTestDataRequest) error
+	}
+
+	DeleteTestDataUseCase interface {
+		Handle(ctx context.Context, id uuid.UUID) error
+	}
 )
