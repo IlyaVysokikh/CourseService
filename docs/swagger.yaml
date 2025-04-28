@@ -1,0 +1,762 @@
+definitions:
+  dto.CloneCourseRequest:
+    properties:
+      author_id:
+        type: string
+      date_end:
+        type: string
+      date_start:
+        type: string
+      description:
+        type: string
+      image_path:
+        type: string
+      name:
+        type: string
+      parent_course_id:
+        type: string
+    required:
+    - author_id
+    - date_end
+    - date_start
+    - name
+    - parent_course_id
+    type: object
+  dto.CreateCourse:
+    properties:
+      author_id:
+        type: string
+      date_end:
+        type: string
+      date_start:
+        type: string
+      description:
+        type: string
+      image_path:
+        type: string
+      name:
+        type: string
+    required:
+    - author_id
+    - date_end
+    - date_start
+    - name
+    type: object
+  dto.CreateCourseResponse:
+    properties:
+      id:
+        type: string
+    type: object
+  dto.CreateModule:
+    properties:
+      date_start:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      sequence_number:
+        type: integer
+    type: object
+  dto.CreateModuleAttachmentRequest:
+    properties:
+      bucket:
+        type: string
+      file_name:
+        type: string
+      visible:
+        type: boolean
+    type: object
+  dto.CreateModuleAttachmentResponse:
+    properties:
+      data:
+        $ref: '#/definitions/models.ModuleAttachment'
+      message:
+        type: string
+      status:
+        type: boolean
+    type: object
+  dto.CreateModulesRequest:
+    properties:
+      course_id:
+        type: string
+      modules:
+        items:
+          $ref: '#/definitions/dto.CreateModule'
+        type: array
+    type: object
+  dto.CreateTestDataRequest:
+    properties:
+      input:
+        type: string
+      output:
+        type: string
+      task_id:
+        type: string
+    type: object
+  dto.ErrorResponse:
+    properties:
+      message:
+        type: string
+    type: object
+  dto.GetModule:
+    properties:
+      id:
+        type: string
+      name:
+        type: string
+    type: object
+  dto.GetModuleResponse:
+    properties:
+      attachment:
+        items:
+          $ref: '#/definitions/models.ModuleAttachment'
+        type: array
+      module:
+        $ref: '#/definitions/dto.GetModule'
+      tasks:
+        items:
+          $ref: '#/definitions/dto.Task'
+        type: array
+    type: object
+  dto.Task:
+    properties:
+      id:
+        type: string
+      name:
+        type: string
+    type: object
+  dto.TaskExtended:
+    properties:
+      execution_timeout:
+        type: integer
+      id:
+        type: string
+      initial_code:
+        type: string
+      language:
+        type: string
+      memory_limit:
+        type: integer
+      name:
+        type: string
+      text:
+        type: string
+    type: object
+  dto.TestDataResponse:
+    properties:
+      id:
+        type: string
+      input:
+        type: string
+      output:
+        type: string
+      task_id:
+        type: string
+    type: object
+  dto.UpdateCourseRequest:
+    properties:
+      date_end:
+        type: string
+      date_start:
+        type: string
+      description:
+        type: string
+      image_path:
+        type: string
+      name:
+        type: string
+    type: object
+  dto.UpdateTestDataRequest:
+    properties:
+      input:
+        type: string
+      output:
+        type: string
+      task_id:
+        type: string
+    type: object
+  models.ModuleAttachment:
+    properties:
+      bucket:
+        type: string
+      fileName:
+        type: string
+      id:
+        type: string
+      moduleID:
+        type: string
+      visible:
+        type: boolean
+    type: object
+info:
+  contact:
+    email: support@example.com
+    name: API Support
+    url: http://www.example.com/support
+  description: This is an example API to demonstrate Swagger documentation generation
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+  termsOfService: http://example.com/terms
+  title: Example API
+  version: "1.0"
+paths:
+  /courses:
+    get:
+      consumes:
+      - application/json
+      description: Получить список всех курсов с возможной фильтрацией
+      parameters:
+      - description: Название курса
+        in: path
+        name: id
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/dto.CreateCourseResponse'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      summary: Получить все курсы
+      tags:
+      - courses
+    post:
+      consumes:
+      - application/json
+      description: Создание нового курса
+      parameters:
+      - description: Информация о курсе
+        in: body
+        name: course
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateCourse'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dto.CreateCourseResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      summary: Создать курс
+      tags:
+      - courses
+  /courses/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Удалить курс по ID
+      parameters:
+      - description: ID курса
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: Курс успешно удалён
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      summary: Удалить курс
+      tags:
+      - courses
+    get:
+      consumes:
+      - application/json
+      description: Получить курс по ID
+      parameters:
+      - description: ID курса
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      summary: Получить курс
+      tags:
+      - courses
+    put:
+      consumes:
+      - application/json
+      description: Обновить курс по ID
+      parameters:
+      - description: ID курса
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Информация о курсе
+        in: body
+        name: course
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateCourseRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      summary: Обновить курс
+      tags:
+      - courses
+  /courses/{id}/clone:
+    post:
+      consumes:
+      - application/json
+      description: Клонировать курс по ID
+      parameters:
+      - description: ID родительского курса
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Информация о новом курсе
+        in: body
+        name: course
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CloneCourseRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      summary: Клонировать курс
+      tags:
+      - courses
+  /modules:
+    post:
+      consumes:
+      - application/json
+      description: Создает один или несколько модулей курса
+      parameters:
+      - description: Данные для создания модулей
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateModulesRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Modules created successfully
+          schema:
+            type: string
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      summary: Создание модулей
+      tags:
+      - Modules
+  /modules/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Удаляет модуль по его ID
+      parameters:
+      - description: UUID модуля
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+          schema:
+            type: string
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "404":
+          description: Module not found
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      summary: Удаление модуля
+      tags:
+      - Modules
+    get:
+      consumes:
+      - application/json
+      description: Получает модуль по его ID
+      parameters:
+      - description: UUID модуля
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Данные модуля
+          schema:
+            $ref: '#/definitions/dto.GetModuleResponse'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "404":
+          description: Module not found
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      summary: Получение модуля
+      tags:
+      - Modules
+  /modules/{id}/attachments:
+    post:
+      consumes:
+      - application/json
+      description: Создает вложение для указанного модуля
+      parameters:
+      - description: UUID модуля
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Данные вложения
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateModuleAttachmentRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Attachment created
+          schema:
+            $ref: '#/definitions/dto.CreateModuleAttachmentResponse'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "404":
+          description: Module not found
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      summary: Добавление вложения к модулю
+      tags:
+      - Modules
+  /tasks/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Удаляет задачу по её ID
+      parameters:
+      - description: UUID задачи
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Некорректный запрос
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "404":
+          description: Задача не найдена
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      summary: Удаление задачи
+      tags:
+      - Tasks
+  /tasks/{taskId}:
+    get:
+      consumes:
+      - application/json
+      description: Получает задачу по её ID
+      parameters:
+      - description: UUID задачи
+        in: path
+        name: taskId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Данные задачи
+          schema:
+            $ref: '#/definitions/dto.TaskExtended'
+        "400":
+          description: Некорректный запрос
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "404":
+          description: Задача не найдена
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      summary: Получение задачи
+      tags:
+      - Tasks
+  /test-data:
+    post:
+      consumes:
+      - application/json
+      description: Создание нового тестового набора данных
+      parameters:
+      - description: Данные для создания
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateTestDataRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Созданные тестовые данные
+          schema:
+            $ref: '#/definitions/dto.TestDataResponse'
+        "400":
+          description: Некорректный запрос
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "404":
+          description: Не найдена задача для привязки данных
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Внутренняя ошибка
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      summary: Создать тестовые данные
+      tags:
+      - TestData
+  /test-data/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Удаление тестового набора данных по ID
+      parameters:
+      - description: UUID тестовых данных
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Успешное удаление
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "400":
+          description: Некорректный запрос
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "404":
+          description: Данные не найдены
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Внутренняя ошибка
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      summary: Удалить тестовые данные
+      tags:
+      - TestData
+    get:
+      consumes:
+      - application/json
+      description: Получение одного тестового набора данных по ID
+      parameters:
+      - description: UUID тестовых данных
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Успешный ответ
+          schema:
+            $ref: '#/definitions/dto.TestDataResponse'
+        "400":
+          description: Некорректный запрос
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "404":
+          description: Данные не найдены
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Внутренняя ошибка
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      summary: Получить тестовые данные
+      tags:
+      - TestData
+    put:
+      consumes:
+      - application/json
+      description: Обновление существующего тестового набора данных по ID
+      parameters:
+      - description: UUID тестовых данных
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Данные для обновления
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateTestDataRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Успешное обновление
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "400":
+          description: Некорректный запрос
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "404":
+          description: Данные не найдены
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Внутренняя ошибка
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      summary: Обновить тестовые данные
+      tags:
+      - TestData
+  /test-data/task/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Получение всех тестовых данных по ID задачи
+      parameters:
+      - description: UUID задачи
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Список тестовых данных
+          schema:
+            items:
+              $ref: '#/definitions/dto.TestDataResponse'
+            type: array
+        "400":
+          description: Некорректный запрос
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "404":
+          description: Данные не найдены
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Внутренняя ошибка
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      summary: Получить все тестовые данные задачи
+      tags:
+      - TestData
+swagger: "2.0"

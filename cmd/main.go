@@ -2,6 +2,8 @@ package main
 
 import (
 	"CourseService/pkg/postgresql"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 	"io"
 	"log"
 	"log/slog"
@@ -15,6 +17,18 @@ import (
 	"CourseService/internal/usecase"
 	cfg "CourseService/pkg"
 )
+
+// @title Example API
+// @version 1.0
+// @description This is an example API to demonstrate Swagger documentation generation
+// @termsOfService http://example.com/terms
+
+// @contact.name API Support
+// @contact.url http://www.example.com/support
+// @contact.email support@example.com
+
+// @license.name MIT
+// @license.url https://opensource.org/licenses/MIT
 
 func main() {
 	c, err := cfg.MustLoad()
@@ -135,5 +149,11 @@ func configureRoutes(router *gin.Engine, h *rest.Handler) {
 		testDataRouter.DELETE("/:id", h.TestDataHandler.DeleteTestData)
 		testDataRouter.PATCH("/:id", h.TestDataHandler.UpdateTestData)
 		testDataRouter.POST("", h.TestDataHandler.CreateTestData)
+	}
+	swaggerRouter := router.Group("")
+	{
+		swaggerRouter.StaticFile("/doc.json", "./docs/swagger.json")
+		url := ginSwagger.URL("http://localhost:8080/doc.json")
+		swaggerRouter.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler, url))
 	}
 }

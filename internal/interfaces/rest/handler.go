@@ -1,6 +1,7 @@
 package rest
 
 import (
+	"CourseService/internal/interfaces/rest/dto"
 	"CourseService/internal/usecase"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -27,11 +28,13 @@ func NewHandler(useCases *usecase.UseCase) *Handler {
 type BaseHandler struct{}
 
 func (h *BaseHandler) badRequest(ctx *gin.Context, err error) {
-	ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+	res := dto.ErrorResponse{Message: err.Error()}
+	ctx.JSON(http.StatusBadRequest, res)
 }
 
 func (h *BaseHandler) notFound(ctx *gin.Context, err error) {
-	ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+	res := dto.ErrorResponse{Message: err.Error()}
+	ctx.JSON(http.StatusNotFound, res)
 }
 
 func (h *BaseHandler) ok(ctx *gin.Context, data interface{}) {
@@ -43,7 +46,8 @@ func (h *BaseHandler) created(ctx *gin.Context, data interface{}) {
 }
 
 func (h *BaseHandler) internalServerError(ctx *gin.Context, err error) {
-	ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+	res := dto.ErrorResponse{Message: err.Error()}
+	ctx.JSON(http.StatusInternalServerError, res)
 }
 
 func (h *BaseHandler) noContent(ctx *gin.Context) {

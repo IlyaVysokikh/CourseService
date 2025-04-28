@@ -34,6 +34,17 @@ func NewCoursesHandler(useCase *usecase.UseCase) *CoursesHandler {
 	}
 }
 
+// GetAllCoursesHandler godoc
+// @Summary      Получить все курсы
+// @Description  Получить список всех курсов с возможной фильтрацией
+// @Tags         courses
+// @Accept       json
+// @Produce      json
+// @Param        id     path     string  false  "Название курса"
+// @Success      200      {array}   dto.CreateCourseResponse
+// @Failure      400      {object}  dto.ErrorResponse
+// @Failure      500      {object}  dto.ErrorResponse
+// @Router       /courses [get]
 func (h *CoursesHandler) GetAllCoursesHandler(ctx *gin.Context) {
 	courseFilter := &dto.CourseFilter{}
 	if err := ctx.ShouldBindQuery(courseFilter); err != nil {
@@ -58,6 +69,18 @@ func (h *CoursesHandler) GetAllCoursesHandler(ctx *gin.Context) {
 	h.ok(ctx, courses)
 }
 
+// GetCourseHandler godoc
+// @Summary      Получить курс
+// @Description  Получить курс по ID
+// @Tags         courses
+// @Accept       json
+// @Produce      json
+// @Param        id   path      string  true  "ID курса"
+// @Success      200
+// @Failure      400  {object}  dto.ErrorResponse
+// @Failure      404  {object}  dto.ErrorResponse
+// @Failure      500  {object}  dto.ErrorResponse
+// @Router       /courses/{id} [get]
 func (h *CoursesHandler) GetCourseHandler(ctx *gin.Context) {
 	id := ctx.Param("id")
 	if id == "" {
@@ -100,6 +123,16 @@ func (h *CoursesHandler) GetCourseHandler(ctx *gin.Context) {
 	h.ok(ctx, course)
 }
 
+// CreateCourseHandler godoc
+// @Summary      Создать курс
+// @Description  Создание нового курса
+// @Tags         courses
+// @Accept       json
+// @Produce      json
+// @Param        course  body      dto.CreateCourse  true  "Информация о курсе"
+// @Success      201     {object}  dto.CreateCourseResponse
+// @Failure      400     {object}  dto.ErrorResponse
+// @Router       /courses [post]
 func (h *CoursesHandler) CreateCourseHandler(ctx *gin.Context) {
 	course := &dto.CreateCourse{}
 	if err := ctx.ShouldBindJSON(course); err != nil {
@@ -118,6 +151,18 @@ func (h *CoursesHandler) CreateCourseHandler(ctx *gin.Context) {
 	h.created(ctx, courseResponse)
 }
 
+// CloneCourseHandler godoc
+// @Summary      Клонировать курс
+// @Description  Клонировать курс по ID
+// @Tags         courses
+// @Accept       json
+// @Produce      json
+// @Param        id      path      string                true  "ID родительского курса"
+// @Param        course  body      dto.CloneCourseRequest true  "Информация о новом курсе"
+// @Success      201     {object}  uuid.UUID
+// @Failure      400     {object}  dto.ErrorResponse
+// @Failure      500     {object}  dto.ErrorResponse
+// @Router       /courses/{id}/clone [post]
 func (h *CoursesHandler) CloneCourseHandler(ctx *gin.Context) {
 	parentIDStr := ctx.Param("id")
 	parentID, err := uuid.Parse(parentIDStr)
@@ -146,6 +191,18 @@ func (h *CoursesHandler) CloneCourseHandler(ctx *gin.Context) {
 	h.created(ctx, clonedID)
 }
 
+// DeleteCourseHandler godoc
+// @Summary      Удалить курс
+// @Description  Удалить курс по ID
+// @Tags         courses
+// @Accept       json
+// @Produce      json
+// @Param        id   path      string  true  "ID курса"
+// @Success      204  "Курс успешно удалён"
+// @Failure      400  {object}  dto.ErrorResponse
+// @Failure      404  {object}  dto.ErrorResponse
+// @Failure      500  {object}  dto.ErrorResponse
+// @Router       /courses/{id} [delete]
 func (h *CoursesHandler) DeleteCourseHandler(ctx *gin.Context) {
 	idUuid, err := uuid.Parse(ctx.Param("id"))
 	if err != nil {
@@ -169,6 +226,19 @@ func (h *CoursesHandler) DeleteCourseHandler(ctx *gin.Context) {
 	return
 }
 
+// UpdateCourseHandler godoc
+// @Summary      Обновить курс
+// @Description  Обновить курс по ID
+// @Tags         courses
+// @Accept       json
+// @Produce      json
+// @Param        id      path      string                  true  "ID курса"
+// @Param        course  body      dto.UpdateCourseRequest  true  "Информация о курсе"
+// @Success      200
+// @Failure      400     {object}  dto.ErrorResponse
+// @Failure      404     {object}  dto.ErrorResponse
+// @Failure      500     {object}  dto.ErrorResponse
+// @Router       /courses/{id} [put]
 func (h *CoursesHandler) UpdateCourseHandler(ctx *gin.Context) {
 	idUuid, err := uuid.Parse(ctx.Param("id"))
 	if err != nil {

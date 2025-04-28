@@ -26,6 +26,18 @@ func NewTasksHandler(useCase *usecase.UseCase) *TasksHandler {
 	}
 }
 
+// GetTaskHandler godoc
+// @Summary Получение задачи
+// @Description Получает задачу по её ID
+// @Tags Tasks
+// @Accept json
+// @Produce json
+// @Param taskId path string true "UUID задачи"
+// @Success 200 {object} dto.TaskExtended "Данные задачи"
+// @Failure 400 {object} dto.ErrorResponse "Некорректный запрос"
+// @Failure 404 {object} dto.ErrorResponse "Задача не найдена"
+// @Failure 500 {object} dto.ErrorResponse "Внутренняя ошибка сервера"
+// @Router /tasks/{taskId} [get]
 func (h *TasksHandler) GetTaskHandler(ctx *gin.Context) {
 	taskId, err := uuid.Parse(ctx.Param("taskId"))
 	if err != nil {
@@ -49,6 +61,18 @@ func (h *TasksHandler) GetTaskHandler(ctx *gin.Context) {
 	h.ok(ctx, task)
 }
 
+// DeleteTaskHandler godoc
+// @Summary Удаление задачи
+// @Description Удаляет задачу по её ID
+// @Tags Tasks
+// @Accept json
+// @Produce json
+// @Param id path string true "UUID задачи"
+// @Success 204
+// @Failure 400 {object} dto.ErrorResponse "Некорректный запрос"
+// @Failure 404 {object} dto.ErrorResponse "Задача не найдена"
+// @Failure 500 {object} dto.ErrorResponse "Внутренняя ошибка сервера"
+// @Router /tasks/{id} [delete]
 func (h *TasksHandler) DeleteTaskHandler(ctx *gin.Context) {
 	taskId, err := uuid.Parse(ctx.Param("id"))
 	if err != nil {
