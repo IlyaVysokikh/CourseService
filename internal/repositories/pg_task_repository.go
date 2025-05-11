@@ -1,10 +1,13 @@
 package repositories
 
 import (
+	"CourseService/internal/interfaces/rest/dto"
 	"CourseService/internal/repositories/models"
 	ierrors "CourseService/pkg/errors"
+	"context"
 	"database/sql"
 	"errors"
+	"fmt"
 	"log/slog"
 
 	"github.com/google/uuid"
@@ -77,4 +80,31 @@ func (t *TaskRepositoryImpl) DeleteTask(id uuid.UUID) error {
 	}
 
 	return nil
+}
+
+func (t *TaskRepositoryImpl) Create(ctx context.Context, req dto.CreateTaskRequest) (uuid.UUID, error) {
+	query := `
+		INSERT INTO t_task (
+			id_module, c_name, c_text, c_language, c_initial_code, 
+			c_memory_limit, c_execution_timeout, c_sequence_number
+		) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+		RETURNING id
+	`
+
+	var newTaskID uuid.UUID
+	err := t.conn.QueryRowContext(ctx, query,
+		req.ModuleId,
+		req.Name,
+		req.Text,
+		req.Language,
+		req.InitialCode,
+		req.MemoryLimit,
+		req.ExecutionTimeout,
+		req.SequenceNumber,
+	).Scan(&newTaskID)
+	if err != nil {
+		return uuid.Nil, fmt.Errorf("failed to insert task: %w", err)
+	}
+
+	return newTaskID, nil
 }

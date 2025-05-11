@@ -24,6 +24,7 @@ type (
 		UpdateModules(courseID uuid.UUID, modules []dto.CreateModule) error
 		GetModule(moduleID uuid.UUID) (*models.Module, error)
 		DeleteModule(id uuid.UUID) error
+		Exists(ctx context.Context, moduleID uuid.UUID) (bool, error)
 	}
 
 	TaskRepository interface {
@@ -31,6 +32,7 @@ type (
 		GetTasksByModule(moduleId uuid.UUID) ([]models.Task, error)
 		GetTask(taskId uuid.UUID) (*models.Task, error)
 		DeleteTask(id uuid.UUID) error
+		Create(ctx context.Context, req dto.CreateTaskRequest) (uuid.UUID, error)
 	}
 
 	ModuleAttachmentRepository interface {

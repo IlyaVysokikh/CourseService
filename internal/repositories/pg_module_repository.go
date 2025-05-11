@@ -4,6 +4,7 @@ import (
 	"CourseService/internal/interfaces/rest/dto"
 	"CourseService/internal/repositories/models"
 	ierrors "CourseService/pkg/errors"
+	"context"
 
 	"database/sql"
 	"errors"
@@ -112,4 +113,16 @@ func (p *PgModuleRepository) DeleteModule(id uuid.UUID) error {
 	}
 
 	return nil
+}
+
+func (p *PgModuleRepository) Exists(ctx context.Context, moduleID uuid.UUID) (bool, error) {
+	query := `SELECT EXISTS (select 1 FROM t_module WHERE id = $1)`
+	var exists bool
+	err := p.conn.QueryRow(query, moduleID).Scan(&exists)
+	if err != nil {
+		return false, ierrors.ErrInternal
+	}
+
+	return exists, nil
+
 }

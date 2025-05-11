@@ -85,3 +85,44 @@ func (t *TaskServiceImpl) GetTask(ctx context.Context, taskId uuid.UUID) (*dto.T
 func (t *TaskServiceImpl) DeleteTask(ctx context.Context, id uuid.UUID) error {
 	return t.repo.DeleteTask(id)
 }
+
+func (t *TaskServiceImpl) CreateTask(ctx context.Context, request dto.CreateTaskRequest) (uuid.UUID, error) {
+	if len(request.Name) > 255 {
+		slog.Error("Name is too long", "name", request.Name)
+		return uuid.Nil, ierrors.ErrInvalidInput
+	}
+
+	if request.Text == "" {
+		slog.Error("Text can not be blank", "text", request.Text)
+		return uuid.Nil, ierrors.ErrInvalidInput
+	}
+
+	tasks, err := t.repo.GetTasksByModule(request.ModuleId)
+	if err != nil {
+		if errors.Is(err, ierrors.ErrNotFound) {
+			slog.Error("Failed to get tasks", "moduleId", request.ModuleId, "error", err)
+		}
+
+		if errors.Is(err, ierrors.ErrInternal) {
+			slog.Error("Failed to get tasks", "moduleId", request.ModuleId, "error", err)
+			return uuid.Nil, ierrors.ErrInternal
+		}
+	}
+
+	for _, task := range tasks {
+		if task.SequenceNumber == request.SequenceNumber {
+			slog.Warn("Task with that sequence number already exists", "taskId", task.Id)
+			return uuid.Nil, ierrors.ErrInvalidInput
+		}
+	}
+
+	taskId, err := t.repo.Create(ctx, request)
+	if err != nil {
+		if errors.Is(err, ierrors.ErrInternal) {
+			slog.Error("Failed to create task", "error", err)
+			return uuid.Nil, ierrors.ErrInternal
+		}
+	}
+
+	return taskId, nil
+}

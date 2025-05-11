@@ -28,6 +28,7 @@ type UseCase struct {
 	GetAllTestDataUseCase shared.GetAllTestDataUseCase
 	GetTestDataUseCasa    shared.GetTestDataUseCase
 	UpdateTestDataUseCase shared.UpdateTestDataUseCase
+	CreateTaskUseCase     shared.CreateTaskUseCase
 }
 
 func NewUseCase(services *services.Service) *UseCase {
@@ -46,6 +47,7 @@ func NewUseCase(services *services.Service) *UseCase {
 
 		GetTaskUseCase:    task.NewGetTaskUseCase(services.TaskService),
 		DeleteTaskUseCase: task.NewDeleteTaskUseCase(services.TaskService),
+		CreateTaskUseCase: task.NewCreateTaskUseCase(services.TaskService),
 
 		CreateTestDataUseCase: test_data.NewCreateTestDataUseCase(services.TestDataService),
 		DeleteTestDataUseCase: test_data.NewDeleteTestDataUseCase(services.TestDataService),

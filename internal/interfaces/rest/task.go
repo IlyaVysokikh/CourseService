@@ -1,6 +1,7 @@
 package rest
 
 import (
+	"CourseService/internal/interfaces/rest/dto"
 	"CourseService/internal/usecase"
 	"CourseService/internal/usecase/shared"
 	ierrors "CourseService/pkg/errors"
@@ -16,6 +17,7 @@ type TasksHandler struct {
 	BaseHandler
 	GetTaskUseCase    shared.GetTaskUseCase
 	DeleteTaskUseCase shared.DeleteTaskUseCase
+	CreateTaskUseCase shared.CreateTaskUseCase
 }
 
 func NewTasksHandler(useCase *usecase.UseCase) *TasksHandler {
@@ -23,6 +25,7 @@ func NewTasksHandler(useCase *usecase.UseCase) *TasksHandler {
 		BaseHandler:       BaseHandler{},
 		GetTaskUseCase:    useCase.GetTaskUseCase,
 		DeleteTaskUseCase: useCase.DeleteTaskUseCase,
+		CreateTaskUseCase: useCase.CreateTaskUseCase,
 	}
 }
 
@@ -91,5 +94,33 @@ func (h *TasksHandler) DeleteTaskHandler(ctx *gin.Context) {
 	}
 
 	h.noContent(ctx)
+	return
+}
+
+func (h *TasksHandler) CreateTask(ctx *gin.Context) {
+
+	var request dto.CreateTaskRequest
+	if err := ctx.ShouldBind(&request); err != nil {
+		slog.Error("failed to bind create task request", "error", err)
+		h.badRequest(ctx, err)
+	}
+
+	res, err := h.CreateTaskUseCase.Handle(ctx, request)
+	if err != nil {
+		if errors.Is(err, ierrors.ErrNotFound) {
+			h.notFound(ctx, err)
+			return
+		}
+
+		if errors.Is(err, ierrors.ErrInvalidInput) {
+			h.badRequest(ctx, err)
+			return
+		}
+
+		h.internalServerError(ctx, err)
+		return
+	}
+
+	h.ok(ctx, res)
 	return
 }

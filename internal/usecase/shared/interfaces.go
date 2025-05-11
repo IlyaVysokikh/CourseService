@@ -75,4 +75,8 @@ type (
 	DeleteTestDataUseCase interface {
 		Handle(ctx context.Context, id uuid.UUID) error
 	}
+
+	CreateTaskUseCase interface {
+		Handle(ctx context.Context, task dto.CreateTaskRequest) (*dto.CreateTaskResponse, error)
+	}
 )

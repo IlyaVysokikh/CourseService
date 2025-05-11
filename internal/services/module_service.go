@@ -100,3 +100,7 @@ func (ms ModuleServiceImpl) DeleteModule(ctx context.Context, id uuid.UUID) erro
 
 	return nil
 }
+
+func (ms ModuleServiceImpl) ModuleExists(ctx context.Context, moduleID uuid.UUID) (bool, error) {
+	return ms.repo.Exists(ctx, moduleID)
+}

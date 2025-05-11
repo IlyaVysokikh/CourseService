@@ -139,7 +139,7 @@ func configureRoutes(router *gin.Engine, h *rest.Handler) {
 		tasksRouter.GET("/:id", h.TasksHandler.GetTaskHandler)
 		tasksRouter.DELETE("/:id", h.TasksHandler.DeleteTaskHandler)
 		tasksRouter.PATCH("/:id")
-		tasksRouter.POST("")
+		tasksRouter.POST("", h.TasksHandler.CreateTask)
 		tasksRouter.GET("/:id/test-data", h.TestDataHandler.GetAllTestData)
 	}
 

@@ -24,6 +24,7 @@ type (
 		CreateModules(ctx context.Context, modules dto.CreateModulesRequest) error
 		GetModule(ctx context.Context, moduleID uuid.UUID) (dto.GetModule, error)
 		DeleteModule(ctx context.Context, id uuid.UUID) error
+		ModuleExists(ctx context.Context, moduleID uuid.UUID) (bool, error)
 	}
 
 	TaskService interface {
@@ -31,6 +32,7 @@ type (
 		GetTasksByModule(ctx context.Context, moduleId uuid.UUID) ([]dto.Task, error)
 		GetTask(ctx context.Context, taskId uuid.UUID) (*dto.TaskExtended, error)
 		DeleteTask(ctx context.Context, id uuid.UUID) error
+		CreateTask(ctx context.Context, request dto.CreateTaskRequest) (uuid.UUID, error)
 	}
 
 	ModuleAttachmentService interface {
